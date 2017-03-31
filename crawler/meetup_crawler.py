@@ -1,14 +1,27 @@
 from __future__ import unicode_literals
-
-import requests
-import json
-import time
 import codecs
 import sys
 UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
 
-api_key= "4b4533f3e6250546446754a3512938"
+api_key= "API_KEY"
+
+def main():
+    cities = []
+    cities_groups_dict = get_groups_from_cities(cities)
+
+    for city in cities:
+        group_members_dict = get_members_from_groups(cities_groups_dict[city])
+        group_events_dict = get_events_from_groups(cities_groups_dict[city])
+        for group in group_events_dict:
+            for event in group_events_dict[group]:
+                event_info = get_event_info(event)
+
+        for group in group_members_dict:
+            for member in group_members_dict[group]:
+                member_info = get_member_info(member)
+
+        #WRITE TO FILE!! - TODO
 
 
 def get_groups_from_cities(cities):
