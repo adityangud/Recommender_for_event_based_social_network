@@ -81,7 +81,28 @@ def get_members_from_groups(group_ids):
 
 def get_events_from_groups(group_ids):
     #return dict containing group vs list of event ids
-    return group_ids
+    group_events_dict = defaultdict(lambda: [])
+    def get_results(params):
+        request = requests.get("http://api.meetup.com/2/events", params = params)
+        data = request.json()
+        return data
+
+    for group in group_ids:
+        per_page = 200
+        offset = 0
+        event_ids = []
+        while True:
+            response = get_results({"group_id": group, "page": per_page, "offset": offset, "key": api_key})
+            offset += 1
+            time.sleep(0.01)
+            results_count = response['meta']['count']
+            if results_count == 0:
+                break
+            for member in response['results']:
+                event_ids.append(member['id'])
+        group_events_dict[group] = event_ids
+        time.sleep(0.01)
+    return group_events_dict
 
 def get_rsvp_from_groups(event_ids):
     #return dict containing event vs list of rsvps (member) ids
