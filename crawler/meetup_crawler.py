@@ -2,13 +2,15 @@ from __future__ import unicode_literals
 import requests
 import codecs
 import sys
+import requests
+from collections import defaultdict
 UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
 
 api_key= "API_KEY"
 
 def main():
-    cities = []
+    cities = [("Chicago", "IL")]
     cities_groups_dict = get_groups_from_cities(cities)
 
     for city in cities:
@@ -27,7 +29,28 @@ def main():
 
 def get_groups_from_cities(cities):
     #return dict containing cities vs group_ids
-    return cities
+    city_groups = defaultdict(lambda: list)
+    def get_results(params):
+        request = requests.get("http://api.meetup.com/2/groups", params = params)
+        data = request.json()
+        return data
+
+    for (city, state) in cities:
+        while (True):
+            group_ids = []
+            response = get_results({"sign":"true","country":"US", "city":city, "state":state, "radius": 100, "key":api_key, "order": 'id'})
+            time.sleep(1)
+            results_count = response['meta']['count']
+            if results_count == 0:
+                break
+            for group in response['results']:
+                group_ids.append(group['id'])
+                #print "," .join(map(unicode, [group['id'], group['name'].replace(","," "), group['urlname'], datetime.datetime.fromtimestamp(group['created']/1000.0), group['members']]))
+        city_groups[(city, state)] = group_ids
+        time.sleep(1)
+    return city_groups
+
+
 
 def get_members_from_groups(group_ids):
     #return dict containing group vs list of member ids
