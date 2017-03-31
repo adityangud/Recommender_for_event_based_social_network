@@ -36,10 +36,10 @@ def get_groups_from_cities(cities):
         return data
 
     for (city, state) in cities:
+        group_ids = []
         per_page = 200
         offset = 0
         while (True):
-            group_ids = []
             response = get_results({"sign":"true","country":"US", "city":city,\
                                     "state":state, "radius": 100, "key":api_key, "order": 'id',\
                                     "page": per_page, "offset": offset})
@@ -113,10 +113,10 @@ def get_rsvp_from_events(event_ids):
         return data
 
     for event_id in event_ids:
+        rsvp_ids = []
         per_page = 200
         offset = 0
         while (True):
-            rsvp_ids = []
             response = get_results({"key":api_key, "page": per_page, "offset": offset, "event_id": event_id})
             offset += 1
             time.sleep(0.01)
