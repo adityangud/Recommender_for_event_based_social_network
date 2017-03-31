@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+import requests
 import codecs
 import sys
 UTF8Writer = codecs.getwriter('utf8')
@@ -26,22 +27,27 @@ def main():
 
 def get_groups_from_cities(cities):
     #return dict containing cities vs group_ids
+    return cities
 
 def get_members_from_groups(group_ids):
     #return dict containing group vs list of member ids
+    return group_ids
 
 def get_events_from_groups(group_ids):
     #return dict containing group vs list of event ids
+    return group_ids
 
 def get_rsvp_from_groups(event_ids):
     #return dict containing event vs list of rsvps (member) ids
+    return event_ids
 
 def get_member_info(member_id):
     #return dict member attributes
+    return member_id
 
 def get_event_info(event_id):
     #return dict event attributes
-
+    return event_id
 
 if __name__=="__main__":
         main()
