@@ -3,6 +3,7 @@ import requests
 import codecs
 import sys
 import requests
+import time
 from collections import defaultdict
 UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
@@ -45,7 +46,6 @@ def get_groups_from_cities(cities):
                 break
             for group in response['results']:
                 group_ids.append(group['id'])
-                #print "," .join(map(unicode, [group['id'], group['name'].replace(","," "), group['urlname'], datetime.datetime.fromtimestamp(group['created']/1000.0), group['members']]))
         city_groups[(city, state)] = group_ids
         time.sleep(1)
     return city_groups
@@ -66,14 +66,26 @@ def get_rsvp_from_groups(event_ids):
 
 def get_member_info(member_id):
     #return dict member attributes
-    return member_id
+    member_info = dict()
+    def get_results(params):
+        request = requests.get("http://api.meetup.com/2/members", params = params)
+        data = request.json()
+        return data
+
+    response = get_results({"key":api_key, "member_id": member_id})
+    member_info["id"] = member_id
+    member_info["lat"] = response["results"][0]["lat"]
+    member_info["lon"] = response["results"][0]["lon"]
+    time.sleep(0.001)
+    return member_info
 
 def get_event_info(event_id):
     #return dict event attributes
     return event_id
 
 if __name__=="__main__":
-        main()
+    main()
+
 
 
 ## Run this script and send it into a csv:
