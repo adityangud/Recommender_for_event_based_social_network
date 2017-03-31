@@ -67,7 +67,7 @@ def get_members_from_groups(group_ids):
         offset = 0
         member_ids = []
         while True:
-            response = get_results({"group_id": group, "page": per_page, "offset": offset})
+            response = get_results({"group_id": group, "page": per_page, "offset": offset, "key": api_key})
             offset += 1
             time.sleep(0.01)
             results_count = response['meta']['count']
