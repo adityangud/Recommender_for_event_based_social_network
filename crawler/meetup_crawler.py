@@ -76,6 +76,7 @@ def get_member_info(member_id):
     member_info["id"] = member_id
     member_info["lat"] = response["results"][0]["lat"]
     member_info["lon"] = response["results"][0]["lon"]
+    time.sleep(0.001)
     return member_info
 
 def get_event_info(event_id):
