@@ -104,10 +104,24 @@ def get_member_info(member_id):
 
 def get_event_info(event_id):
     #return dict event attributes
-    return event_id
+    event_info = dict()
+
+    def get_results(params):
+        request = requests.get("http://api.meetup.com/2/events", params=params)
+        data = request.json()
+        return data
+
+    response = get_results({"key": api_key, "event_id": event_id})
+    event_info["id"] = event_id
+    event_info["lat"] = response["results"][0]["venue"]["lat"]
+    event_info["lon"] = response["results"][0]["venue"]["lon"]
+    event_info["description"] = response["results"][0]["description"]
+    time.sleep(0.001)
+    return event_info
 
 if __name__=="__main__":
     main()
+
 
 
 
