@@ -1,5 +1,4 @@
 from __future__ import unicode_literals
-import requests
 import codecs
 import sys
 import requests
@@ -37,9 +36,14 @@ def get_groups_from_cities(cities):
         return data
 
     for (city, state) in cities:
+        per_page = 200
+        offset = 0
         while (True):
             group_ids = []
-            response = get_results({"sign":"true","country":"US", "city":city, "state":state, "radius": 100, "key":api_key, "order": 'id'})
+            response = get_results({"sign":"true","country":"US", "city":city,\
+                                    "state":state, "radius": 100, "key":api_key, "order": 'id',\
+                                    "page": per_page, "offset": offset})
+            offset += 1
             time.sleep(1)
             results_count = response['meta']['count']
             if results_count == 0:
@@ -50,11 +54,30 @@ def get_groups_from_cities(cities):
         time.sleep(1)
     return city_groups
 
-
-
 def get_members_from_groups(group_ids):
     #return dict containing group vs list of member ids
-    return group_ids
+    group_members_dict = defaultdict(lambda: [])
+    def get_results(params):
+        request = requests.get("http://api.meetup.com/2/members", params = params)
+        data = request.json()
+        return data
+
+    for group in group_ids:
+        per_page = 200
+        offset = 0
+        member_ids = []
+        while True:
+            response = get_results({"group_id": group, "page": per_page, "offset": offset})
+            offset += 1
+            time.sleep(0.01)
+            results_count = response['meta']['count']
+            if results_count == 0:
+                break
+            for member in response['results']:
+                member_ids.append(member['id'])
+        group_members_dict[group] = member_ids
+        time.sleep(0.01)
+    return group_members_dict
 
 def get_events_from_groups(group_ids):
     #return dict containing group vs list of event ids
