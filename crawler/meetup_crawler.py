@@ -27,17 +27,16 @@ def main():
     logging.info('Groups retrieval for all cities completed')
     for city in cities:
         logging.info('Numbers for groups found for city %s : %s', city, len(cities_groups_dict[city]))
+
         logging.info('------- Members retrieval for all groups started ---------')
         group_members_dict = get_members_from_groups(cities_groups_dict[city])
         create_json_file(group_members_dict, "cities/"+ city[0]+"/group_members.json")
         logging.info('------- Members retrieval for all groups completed ---------')
+
         logging.info('------- Events retrieval for all groups started ---------')
         group_events_dict = get_events_from_groups(cities_groups_dict[city])
         create_json_file(group_events_dict, "cities/" + city[0] + "/group_events.json")
         logging.info('------- Events retrieval for all groups completed ---------')
-
-        for group in cities_groups_dict[city]:
-            print group, ' '.join(group_members_dict[group]), ' '.join(group_events_dict[group])
 
         for group in group_events_dict:
             for event in group_events_dict[group]:
@@ -55,6 +54,7 @@ def get_groups_from_cities(cities):
     city_groups = defaultdict(lambda: list)
     def get_results(params):
         request = requests.get("http://api.meetup.com/2/groups", params = params)
+        handle_throttling(request.headers)
         data = request.json()
         return data
 
@@ -68,12 +68,10 @@ def get_groups_from_cities(cities):
                                     "state":state, "radius": 1, "key":api_key, "order": 'id',\
                                     "page": per_page, "offset": offset})
             offset += 1
-            time.sleep(1)
             results_count = response['meta']['count']
             for group in response['results']:
                 group_ids.append(group['id'])
         city_groups[(city, state)] = group_ids
-        time.sleep(1)
     return city_groups
 
 def get_members_from_groups(group_ids):
@@ -81,6 +79,7 @@ def get_members_from_groups(group_ids):
     group_members_dict = defaultdict(lambda: [])
     def get_results(params):
         request = requests.get("http://api.meetup.com/2/members", params = params)
+        handle_throttling(request.headers)
         data = request.json()
         return data
     countGroupsDone = 0
@@ -92,13 +91,10 @@ def get_members_from_groups(group_ids):
         while results_count == per_page:
             response = get_results({"group_id": group, "page": per_page, "offset": offset, "key": api_key})
             offset += 1
-            time.sleep(0.01)
-            logging.info(response)
             results_count = response['meta']['count']
             for member in response['results']:
                 member_ids.append(member['id'])
         group_members_dict[group] = member_ids
-        time.sleep(0.01)
         countGroupsDone += 1
         if countGroupsDone %100 == 0:
             logging.info('Number of Groups Done : %s', countGroupsDone)
@@ -109,6 +105,7 @@ def get_events_from_groups(group_ids):
     group_events_dict = defaultdict(lambda: [])
     def get_results(params):
         request = requests.get("http://api.meetup.com/2/events", params = params)
+        handle_throttling(request.headers)
         data = request.json()
         return data
 
@@ -121,12 +118,10 @@ def get_events_from_groups(group_ids):
         while results_count == per_page:
             response = get_results({"group_id": group, "page": per_page, "offset": offset, "key": api_key})
             offset += 1
-            time.sleep(0.01)
             results_count = response['meta']['count']
             for member in response['results']:
                 event_ids.append(member['id'])
         group_events_dict[group] = event_ids
-        time.sleep(0.01)
         countGroupsDone += 1
         if countGroupsDone % 100 == 0:
             logging.info('Number of Groups Done : %s', countGroupsDone)
@@ -137,6 +132,7 @@ def get_rsvp_from_events(event_ids):
     event_rsvps = defaultdict(lambda: list)
     def get_results(params):
         request = requests.get("http://api.meetup.com/2/rsvps", params = params)
+        handle_throttling(request.headers)
         data = request.json()
         return data
 
@@ -148,12 +144,10 @@ def get_rsvp_from_events(event_ids):
         while results_count == per_page:
             response = get_results({"key":api_key, "page": per_page, "offset": offset, "event_id": event_id})
             offset += 1
-            time.sleep(0.01)
             results_count = response['meta']['count']
             for rsvp in response['results']:
                 rsvp_ids.append(rsvp['member']['member_id'])
         event_rsvps[event_id] = rsvp_ids
-        time.sleep(0.1)
     return event_rsvps
 
 def get_member_info(member_id):
@@ -161,6 +155,7 @@ def get_member_info(member_id):
     member_info = dict()
     def get_results(params):
         request = requests.get("http://api.meetup.com/2/members", params = params)
+        handle_throttling(request.headers)
         data = request.json()
         return data
 
@@ -168,7 +163,6 @@ def get_member_info(member_id):
     member_info["id"] = member_id
     member_info["lat"] = response["results"][0]["lat"]
     member_info["lon"] = response["results"][0]["lon"]
-    time.sleep(0.001)
     return member_info
 
 def get_event_info(event_id):
@@ -177,16 +171,24 @@ def get_event_info(event_id):
 
     def get_results(params):
         request = requests.get("http://api.meetup.com/2/events", params=params)
+        handle_throttling(request.headers)
         data = request.json()
         return data
 
     response = get_results({"key": api_key, "event_id": event_id})
+    print event_id, response
     event_info["id"] = event_id
     event_info["lat"] = response["results"][0]["venue"]["lat"]
     event_info["lon"] = response["results"][0]["venue"]["lon"]
     event_info["description"] = response["results"][0]["description"]
-    time.sleep(0.001)
     return event_info
+
+def handle_throttling(headers):
+    remaining = headers['X-RateLimit-Remaining']
+    resetTime = headers['X-RateLimit-Reset']
+    if int(remaining) < 4:
+        time.sleep(float(resetTime))
+
 
 if __name__=="__main__":
     main()
