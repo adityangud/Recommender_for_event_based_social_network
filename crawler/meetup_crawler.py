@@ -11,7 +11,7 @@ UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.INFO)
 
-api_keys= ["3079444c2336933b243649213d4436", "56515058531323e47727a634743"]
+api_keys= ["API_KEY1", "API_KEY2"]
 current_index = 0
 
 default_loc = {
@@ -95,7 +95,7 @@ def get_groups_from_cities(cities):
         offset = 0
         while results_count == per_page:
             response = get_results({"sign":"true","country":"US", "city":city,\
-                                    "state":state, "radius": 1, "key":api_keys[current_index], "order": 'id',\
+                                    "state":state, "radius": 10, "key":api_keys[current_index], "order": 'id',\
                                     "page": per_page, "offset": offset})
             offset += 1
             results_count = response['meta']['count']
