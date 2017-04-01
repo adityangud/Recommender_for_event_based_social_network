@@ -12,7 +12,7 @@ UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
 logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', filename='info.log', level=logging.INFO)
 
-api_keys= ["3079444c2336933b243649213d4436", "56515058531323e47727a634743"]
+api_keys= ["API_KEY1", "API_KEY2"]
 current_index = 0
 
 default_loc = {
