@@ -222,7 +222,10 @@ def get_events_info(event_ids, default_lat, default_lon):
             else:
                 event_info["lat"] = default_lat
                 event_info["lon"] = default_lon
-            event_info["description"] = event["description"]
+            if "description" in event:
+                event_info["description"] = event["description"]
+            else:
+                event_info["description"] = ""
             events_info_dict[event['id']] = event_info
     return events_info_dict
 
