@@ -12,7 +12,7 @@ UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
 logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', filename='info.log', level=logging.INFO)
 
-api_keys= ["API_KEY1", "API_KEY2"]
+api_keys= ["3079444c2336933b243649213d4436", "56515058531323e47727a634743"]
 current_index = 0
 
 default_loc = {
@@ -40,7 +40,7 @@ default_loc = {
 
 def main():
     logging.info('Main Started')
-    cities = [("College Station", "TX")]
+    cities = [("Phoenix", "AZ")]
     cities_groups_dict = get_groups_from_cities(cities)
 
     logging.info('Groups retrieval for all cities completed')
@@ -94,9 +94,10 @@ def get_groups_from_cities(cities):
         try:
             request = requests.get("http://api.meetup.com/2/groups", params = params)
         except (SocketError, requests.ConnectionError) as e:
+            logging.error("Failed for API %s params %s", "http://api.meetup.com/2/groups", str(params))
+            logging.error("Response is : %s", request.json())
             logging.error("Socket or Connection Exception occured due to : %s", str(e))
             time.sleep(5)
-            get_results(params)
         handle_throttling(request.headers)
         data = request.json()
         return data
@@ -124,9 +125,10 @@ def get_members_from_groups(group_ids):
         try:
             request = requests.get("http://api.meetup.com/2/members", params = params)
         except (SocketError, requests.ConnectionError) as e:
+            logging.error("Failed for API %s params %s", "http://api.meetup.com/2/members", str(params))
+            logging.error("Response is : %s", request.json())
             logging.error("Socket or Connection Exception occured due to : %s", str(e))
             time.sleep(5)
-            get_results(params)
         handle_throttling(request.headers)
         data = request.json()
         return data
@@ -155,9 +157,10 @@ def get_events_from_groups(group_ids):
         try:
             request = requests.get("http://api.meetup.com/2/events", params = params)
         except (SocketError, requests.ConnectionError) as e:
+            logging.error("Failed for API %s params %s", "http://api.meetup.com/2/events", str(params))
+            logging.error("Response is : %s", request.json())
             logging.error("Socket or Connection Exception occured due to : %s", str(e))
             time.sleep(5)
-            get_results(params)
         handle_throttling(request.headers)
         data = request.json()
         return data
@@ -187,9 +190,10 @@ def get_rsvp_from_events(event_ids):
         try:
             request = requests.get("http://api.meetup.com/2/rsvps", params = params)
         except (SocketError, requests.ConnectionError) as e:
+            logging.error("Failed for API %s params %s", "http://api.meetup.com/2/rsvps", str(params))
+            logging.error("Response is : %s", request.json())
             logging.error("Socket or Connection Exception occured due to : %s", str(e))
             time.sleep(5)
-            get_results(params)
         handle_throttling(request.headers)
         data = request.json()
         return data
@@ -215,9 +219,10 @@ def get_members_info(member_ids):
         try:
             request = requests.get("http://api.meetup.com/2/members", params = params)
         except (SocketError, requests.ConnectionError) as e:
+            logging.error("Failed for API %s params %s", "http://api.meetup.com/2/members", str(params))
+            logging.error("Response is : %s", request.json())
             logging.error("Socket or Connection Exception occured due to : %s", str(e))
             time.sleep(5)
-            get_results(params)
         handle_throttling(request.headers)
         data = request.json()
         return data
@@ -240,9 +245,10 @@ def get_events_info(event_ids, default_lat, default_lon):
         try:
             request = requests.get("http://api.meetup.com/2/events", params=params)
         except (SocketError, requests.ConnectionError) as e:
+            logging.error("Failed for API %s params %s", "http://api.meetup.com/2/events", str(params))
+            logging.error("Response is : %s", request.json())
             logging.error("Socket or Connection Exception occured due to : %s", str(e))
             time.sleep(5)
-            get_results(params)
         handle_throttling(request.headers)
         data = request.json()
         return data
