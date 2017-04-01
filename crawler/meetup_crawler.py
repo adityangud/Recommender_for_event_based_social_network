@@ -11,13 +11,31 @@ UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.INFO)
 
-api_key= "102c4a7355cf112b28151213b1f3b"
+api_keys= ["API_KEY1", "API_KEY2"]
+current_index = 0
 
-def create_json_file(dictionary, filename):
-    json_repr = json.dumps(dictionary)
-    f = open(filename, "w")
-    f.write(json_repr)
-    f.close()
+default_loc = {
+    'College Station' :
+        {
+            'lat':30.600000381469727,
+            'lon':-96.29000091552734
+        },
+    'Chicago' :
+        {
+            'lat':41.8781,
+            'lon':87.6298
+        },
+    'Phoenix' :
+        {
+            'lat':33.4484,
+            'lon':-112.0740
+        },
+    'San Jose' :
+        {
+            'lat':37.3382,
+            'lon':-121.8863
+        }
+}
 
 def main():
     logging.info('Main Started')
@@ -27,27 +45,38 @@ def main():
     logging.info('Groups retrieval for all cities completed')
     for city in cities:
         logging.info('Numbers for groups found for city %s : %s', city, len(cities_groups_dict[city]))
+
+
         logging.info('------- Members retrieval for all groups started ---------')
         group_members_dict = get_members_from_groups(cities_groups_dict[city])
         create_json_file(group_members_dict, "cities/"+ city[0]+"/group_members.json")
         logging.info('------- Members retrieval for all groups completed ---------')
+
+
         logging.info('------- Events retrieval for all groups started ---------')
         group_events_dict = get_events_from_groups(cities_groups_dict[city])
         create_json_file(group_events_dict, "cities/" + city[0] + "/group_events.json")
         logging.info('------- Events retrieval for all groups completed ---------')
 
-        for group in cities_groups_dict[city]:
-            print group, ' '.join(group_members_dict[group]), ' '.join(group_events_dict[group])
 
+        logging.info('------- Events Info retrieval for all groups started ---------')
+        all_events_info = dict()
         for group in group_events_dict:
-            for event in group_events_dict[group]:
-                event_info = get_event_info(event)
+            logging.info('Numbers for events found for group %s : %s', group, len(group_events_dict[group]))
+            all_events_info.update(get_events_info(group_events_dict[group], default_loc[city[0]]['lat'], default_loc[city[0]]['lon']))
+        create_json_file(all_events_info, "cities/" + city[0] + "/events_info.json")
+        logging.info('------- Events Info retrieval for all groups completed ---------')
+        logging.info('Total Number of events in the city %s : %s', city, len(all_events_info))
 
+
+        logging.info('------- Members Info retrieval for all groups started ---------')
+        all_members_info = dict()
         for group in group_members_dict:
-            for member in group_members_dict[group]:
-                member_info = get_member_info(member)
-
-        #WRITE TO FILE!! - TODO
+            logging.info('Numbers for members found for group %s : %s', group, len(group_members_dict[group]))
+            all_members_info.update(get_members_info(group_members_dict[group]))
+        create_json_file(all_events_info, "cities/" + city[0] + "/members_info.json")
+        logging.info('------- Members Info retrieval for all groups completed ---------')
+        logging.info('Total Number of members in the city %s : %s', city, len(all_members_info))
 
 
 def get_groups_from_cities(cities):
@@ -55,6 +84,7 @@ def get_groups_from_cities(cities):
     city_groups = defaultdict(lambda: list)
     def get_results(params):
         request = requests.get("http://api.meetup.com/2/groups", params = params)
+        handle_throttling(request.headers)
         data = request.json()
         return data
 
@@ -65,15 +95,13 @@ def get_groups_from_cities(cities):
         offset = 0
         while results_count == per_page:
             response = get_results({"sign":"true","country":"US", "city":city,\
-                                    "state":state, "radius": 1, "key":api_key, "order": 'id',\
+                                    "state":state, "radius": 10, "key":api_keys[current_index], "order": 'id',\
                                     "page": per_page, "offset": offset})
             offset += 1
-            time.sleep(1)
             results_count = response['meta']['count']
             for group in response['results']:
                 group_ids.append(group['id'])
         city_groups[(city, state)] = group_ids
-        time.sleep(1)
     return city_groups
 
 def get_members_from_groups(group_ids):
@@ -81,6 +109,7 @@ def get_members_from_groups(group_ids):
     group_members_dict = defaultdict(lambda: [])
     def get_results(params):
         request = requests.get("http://api.meetup.com/2/members", params = params)
+        handle_throttling(request.headers)
         data = request.json()
         return data
     countGroupsDone = 0
@@ -90,15 +119,12 @@ def get_members_from_groups(group_ids):
         offset = 0
         member_ids = []
         while results_count == per_page:
-            response = get_results({"group_id": group, "page": per_page, "offset": offset, "key": api_key})
+            response = get_results({"group_id": group, "page": per_page, "offset": offset, "key": api_keys[current_index]})
             offset += 1
-            time.sleep(0.01)
-            logging.info(response)
             results_count = response['meta']['count']
             for member in response['results']:
                 member_ids.append(member['id'])
         group_members_dict[group] = member_ids
-        time.sleep(0.01)
         countGroupsDone += 1
         if countGroupsDone %100 == 0:
             logging.info('Number of Groups Done : %s', countGroupsDone)
@@ -109,6 +135,7 @@ def get_events_from_groups(group_ids):
     group_events_dict = defaultdict(lambda: [])
     def get_results(params):
         request = requests.get("http://api.meetup.com/2/events", params = params)
+        handle_throttling(request.headers)
         data = request.json()
         return data
 
@@ -119,14 +146,12 @@ def get_events_from_groups(group_ids):
         results_count = per_page
         event_ids = []
         while results_count == per_page:
-            response = get_results({"group_id": group, "page": per_page, "offset": offset, "key": api_key})
+            response = get_results({"group_id": group, "page": per_page, "offset": offset, "key": api_keys[current_index]})
             offset += 1
-            time.sleep(0.01)
             results_count = response['meta']['count']
             for member in response['results']:
                 event_ids.append(member['id'])
         group_events_dict[group] = event_ids
-        time.sleep(0.01)
         countGroupsDone += 1
         if countGroupsDone % 100 == 0:
             logging.info('Number of Groups Done : %s', countGroupsDone)
@@ -137,6 +162,7 @@ def get_rsvp_from_events(event_ids):
     event_rsvps = defaultdict(lambda: list)
     def get_results(params):
         request = requests.get("http://api.meetup.com/2/rsvps", params = params)
+        handle_throttling(request.headers)
         data = request.json()
         return data
 
@@ -146,53 +172,80 @@ def get_rsvp_from_events(event_ids):
         results_count = per_page
         offset = 0
         while results_count == per_page:
-            response = get_results({"key":api_key, "page": per_page, "offset": offset, "event_id": event_id})
+            response = get_results({"key":api_keys[current_index], "page": per_page, "offset": offset, "event_id": event_id})
             offset += 1
-            time.sleep(0.01)
             results_count = response['meta']['count']
             for rsvp in response['results']:
                 rsvp_ids.append(rsvp['member']['member_id'])
         event_rsvps[event_id] = rsvp_ids
-        time.sleep(0.1)
     return event_rsvps
 
-def get_member_info(member_id):
+def get_members_info(member_ids):
     #return dict member attributes
     member_info = dict()
     def get_results(params):
         request = requests.get("http://api.meetup.com/2/members", params = params)
+        handle_throttling(request.headers)
         data = request.json()
         return data
 
-    response = get_results({"key":api_key, "member_id": member_id})
-    member_info["id"] = member_id
-    member_info["lat"] = response["results"][0]["lat"]
-    member_info["lon"] = response["results"][0]["lon"]
-    time.sleep(0.001)
-    return member_info
+    members_info_dict = dict()
+    for i in range(0, len(member_ids), 150):
+        sub_member_list = member_ids[i:min(i + 150, len(member_ids))]
+        response = get_results({"key":api_keys[current_index], "member_id": ','.join(str(id) for id in sub_member_list), "page": 200})
+        for member in response['results']:
+            member_info = dict()
+            member_info["lat"] = member["lat"]
+            member_info["lon"] = member["lon"]
+            members_info_dict[member["id"]] = member_info
+    return members_info_dict
 
-def get_event_info(event_id):
+def get_events_info(event_ids, default_lat, default_lon):
     #return dict event attributes
-    event_info = dict()
 
     def get_results(params):
         request = requests.get("http://api.meetup.com/2/events", params=params)
+        handle_throttling(request.headers)
         data = request.json()
         return data
 
-    response = get_results({"key": api_key, "event_id": event_id})
-    event_info["id"] = event_id
-    event_info["lat"] = response["results"][0]["venue"]["lat"]
-    event_info["lon"] = response["results"][0]["venue"]["lon"]
-    event_info["description"] = response["results"][0]["description"]
-    time.sleep(0.001)
-    return event_info
+    events_info_dict = dict()
+
+    for i in range(0, len(event_ids), 150):
+        sub_event_list = event_ids[i:min(i + 150, len(event_ids))]
+        response = get_results({"key": api_keys[current_index], "event_id": ','.join(sub_event_list), "page": 200})
+        for event in response['results']:
+            event_info = dict()
+            if "venue" in event:
+                event_info["lat"] = event["venue"]["lat"]
+                event_info["lon"] = event["venue"]["lon"]
+            else:
+                event_info["lat"] = default_lat
+                event_info["lon"] = default_lon
+            if "description" in event:
+                event_info["description"] = event["description"]
+            else:
+                event_info["description"] = ""
+            events_info_dict[event['id']] = event_info
+    return events_info_dict
+
+def handle_throttling(headers):
+    global current_index
+    remaining = headers['X-RateLimit-Remaining']
+    resetTime = headers['X-RateLimit-Reset']
+    if int(remaining) < 4:
+        current_index = (current_index + 1)%2
+        request = requests.get("http://api.meetup.com/2/rsvps", params={'key':api_keys[current_index]})
+        new_remaining = request.headers['X-RateLimit-Reset']
+        new_reset = request.headers['X-RateLimit-Reset']
+        if int(new_remaining) < 4:
+            time.sleep(float(new_reset) + 0.5)
+
+def create_json_file(dictionary, filename):
+    json_repr = json.dumps(dictionary)
+    f = open(filename, "w")
+    f.write(json_repr)
+    f.close()
 
 if __name__=="__main__":
     main()
-
-
-
-
-## Run this script and send it into a csv:
-## python meetup-pages-names-dates.py > meetup_groups.csv
