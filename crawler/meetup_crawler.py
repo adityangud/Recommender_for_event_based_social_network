@@ -37,12 +37,6 @@ default_loc = {
         }
 }
 
-def create_json_file(dictionary, filename):
-    json_repr = json.dumps(dictionary)
-    f = open(filename, "w")
-    f.write(json_repr)
-    f.close()
-
 def main():
     logging.info('Main Started')
     cities = [("College Station", "TX")]
@@ -52,25 +46,37 @@ def main():
     for city in cities:
         logging.info('Numbers for groups found for city %s : %s', city, len(cities_groups_dict[city]))
 
+
         logging.info('------- Members retrieval for all groups started ---------')
         group_members_dict = get_members_from_groups(cities_groups_dict[city])
         create_json_file(group_members_dict, "cities/"+ city[0]+"/group_members.json")
         logging.info('------- Members retrieval for all groups completed ---------')
+
 
         logging.info('------- Events retrieval for all groups started ---------')
         group_events_dict = get_events_from_groups(cities_groups_dict[city])
         create_json_file(group_events_dict, "cities/" + city[0] + "/group_events.json")
         logging.info('------- Events retrieval for all groups completed ---------')
 
+
+        logging.info('------- Events Info retrieval for all groups started ---------')
+        all_events_info = dict()
         for group in group_events_dict:
             logging.info('Numbers for events found for group %s : %s', group, len(group_events_dict[group]))
-            event_info = get_events_info(group_events_dict[group], default_loc[city[0]]['lat'], default_loc[city[0]]['lon'])
+            all_events_info.update(get_events_info(group_events_dict[group], default_loc[city[0]]['lat'], default_loc[city[0]]['lon']))
+        create_json_file(all_events_info, "cities/" + city[0] + "/events_info.json")
+        logging.info('------- Events Info retrieval for all groups completed ---------')
+        logging.info('Total Number of events in the city %s : %s', city, len(all_events_info))
 
+
+        logging.info('------- Members Info retrieval for all groups started ---------')
+        all_members_info = dict()
         for group in group_members_dict:
             logging.info('Numbers for members found for group %s : %s', group, len(group_members_dict[group]))
-            member_info = get_members_info(group_members_dict[group])
-
-        #WRITE TO FILE!! - TODO
+            all_members_info.update(get_members_info(group_members_dict[group]))
+        create_json_file(all_events_info, "cities/" + city[0] + "/members_info.json")
+        logging.info('------- Members Info retrieval for all groups completed ---------')
+        logging.info('Total Number of members in the city %s : %s', city, len(all_members_info))
 
 
 def get_groups_from_cities(cities):
@@ -183,17 +189,16 @@ def get_members_info(member_ids):
         data = request.json()
         return data
 
-    member_info_list = []
+    members_info_dict = dict()
     for i in range(0, len(member_ids), 150):
         sub_member_list = member_ids[i:min(i + 150, len(member_ids))]
         response = get_results({"key":api_keys[current_index], "member_id": ','.join(str(id) for id in sub_member_list), "page": 200})
         for member in response['results']:
             member_info = dict()
-            member_info["id"] = member["id"]
             member_info["lat"] = member["lat"]
             member_info["lon"] = member["lon"]
-            member_info_list.append(member_info)
-    return member_info_list
+            members_info_dict[member["id"]] = member_info
+    return members_info_dict
 
 def get_events_info(event_ids, default_lat, default_lon):
     #return dict event attributes
@@ -204,14 +209,13 @@ def get_events_info(event_ids, default_lat, default_lon):
         data = request.json()
         return data
 
-    event_info_list = []
+    events_info_dict = dict()
 
     for i in range(0, len(event_ids), 150):
         sub_event_list = event_ids[i:min(i + 150, len(event_ids))]
         response = get_results({"key": api_keys[current_index], "event_id": ','.join(sub_event_list), "page": 200})
         for event in response['results']:
             event_info = dict()
-            event_info["id"] = event['id']
             if "venue" in event:
                 event_info["lat"] = event["venue"]["lat"]
                 event_info["lon"] = event["venue"]["lon"]
@@ -219,8 +223,8 @@ def get_events_info(event_ids, default_lat, default_lon):
                 event_info["lat"] = default_lat
                 event_info["lon"] = default_lon
             event_info["description"] = event["description"]
-            event_info_list.append(event_info)
-    return event_info_list
+            events_info_dict[event['id']] = event_info
+    return events_info_dict
 
 def handle_throttling(headers):
     global current_index
@@ -234,6 +238,11 @@ def handle_throttling(headers):
         if int(new_remaining) < 4:
             time.sleep(float(new_reset) + 0.5)
 
+def create_json_file(dictionary, filename):
+    json_repr = json.dumps(dictionary)
+    f = open(filename, "w")
+    f.write(json_repr)
+    f.close()
 
 if __name__=="__main__":
     main()
