@@ -10,7 +10,7 @@ UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.INFO)
 
-api_key= "API_KEY"
+api_key= ""
 
 def main():
     logging.info('Main Started')
@@ -52,16 +52,15 @@ def get_groups_from_cities(cities):
     for (city, state) in cities:
         group_ids = []
         per_page = 200
+        results_count = per_page
         offset = 0
-        while (True):
+        while results_count == per_page:
             response = get_results({"sign":"true","country":"US", "city":city,\
-                                    "state":state, "radius": 100, "key":api_key, "order": 'id',\
+                                    "state":state, "radius": 1, "key":api_key, "order": 'id',\
                                     "page": per_page, "offset": offset})
             offset += 1
             time.sleep(1)
             results_count = response['meta']['count']
-            if results_count == 0:
-                break
             for group in response['results']:
                 group_ids.append(group['id'])
         city_groups[(city, state)] = group_ids
@@ -78,15 +77,15 @@ def get_members_from_groups(group_ids):
     countGroupsDone = 0
     for group in group_ids:
         per_page = 200
+        results_count = per_page
         offset = 0
         member_ids = []
-        while True:
+        while results_count == per_page:
             response = get_results({"group_id": group, "page": per_page, "offset": offset, "key": api_key})
             offset += 1
             time.sleep(0.01)
+            logging.info(response)
             results_count = response['meta']['count']
-            if results_count == 0:
-                break
             for member in response['results']:
                 member_ids.append(member['id'])
         group_members_dict[group] = member_ids
@@ -108,14 +107,13 @@ def get_events_from_groups(group_ids):
     for group in group_ids:
         per_page = 200
         offset = 0
+        results_count = per_page
         event_ids = []
-        while True:
+        while results_count == per_page:
             response = get_results({"group_id": group, "page": per_page, "offset": offset, "key": api_key})
             offset += 1
             time.sleep(0.01)
             results_count = response['meta']['count']
-            if results_count == 0:
-                break
             for member in response['results']:
                 event_ids.append(member['id'])
         group_events_dict[group] = event_ids
@@ -136,14 +134,13 @@ def get_rsvp_from_events(event_ids):
     for event_id in event_ids:
         rsvp_ids = []
         per_page = 200
+        results_count = per_page
         offset = 0
-        while (True):
+        while results_count == per_page:
             response = get_results({"key":api_key, "page": per_page, "offset": offset, "event_id": event_id})
             offset += 1
             time.sleep(0.01)
             results_count = response['meta']['count']
-            if results_count == 0:
-                break
             for rsvp in response['results']:
                 rsvp_ids.append(rsvp['member']['member_id'])
         event_rsvps[event_id] = rsvp_ids
