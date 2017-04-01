@@ -5,12 +5,19 @@ import requests
 import time
 from collections import defaultdict
 import logging
+import json
 
 UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.INFO)
 
-api_key= ""
+api_key= "102c4a7355cf112b28151213b1f3b"
+
+def create_json_file(dictionary, filename):
+    json_repr = json.dumps(dictionary)
+    f = open(filename, "w")
+    f.write(json_repr)
+    f.close()
 
 def main():
     logging.info('Main Started')
@@ -22,9 +29,11 @@ def main():
         logging.info('Numbers for groups found for city %s : %s', city, len(cities_groups_dict[city]))
         logging.info('------- Members retrieval for all groups started ---------')
         group_members_dict = get_members_from_groups(cities_groups_dict[city])
+        create_json_file(group_members_dict, "cities/"+ city[0]+"/group_members.json")
         logging.info('------- Members retrieval for all groups completed ---------')
         logging.info('------- Events retrieval for all groups started ---------')
         group_events_dict = get_events_from_groups(cities_groups_dict[city])
+        create_json_file(group_events_dict, "cities/" + city[0] + "/group_events.json")
         logging.info('------- Events retrieval for all groups completed ---------')
 
         for group in cities_groups_dict[city]:
