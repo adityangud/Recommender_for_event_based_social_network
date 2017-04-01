@@ -4,18 +4,32 @@ import sys
 import requests
 import time
 from collections import defaultdict
+import logging
+
 UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
+logging.basicConfig(format='%(asctime)s %(message)s',level=logging.INFO)
 
 api_key= "API_KEY"
 
 def main():
-    cities = [("Chicago", "IL")]
+    logging.info('Main Started')
+    cities = [("College Station", "TX")]
     cities_groups_dict = get_groups_from_cities(cities)
 
+    logging.info('Groups retrieval for all cities completed')
     for city in cities:
+        logging.info('Numbers for groups found for city %s : %s', city, len(cities_groups_dict[city]))
+        logging.info('------- Members retrieval for all groups started ---------')
         group_members_dict = get_members_from_groups(cities_groups_dict[city])
+        logging.info('------- Members retrieval for all groups completed ---------')
+        logging.info('------- Events retrieval for all groups started ---------')
         group_events_dict = get_events_from_groups(cities_groups_dict[city])
+        logging.info('------- Events retrieval for all groups completed ---------')
+
+        for group in cities_groups_dict[city]:
+            print group, ' '.join(group_members_dict[group]), ' '.join(group_events_dict[group])
+
         for group in group_events_dict:
             for event in group_events_dict[group]:
                 event_info = get_event_info(event)
@@ -61,7 +75,7 @@ def get_members_from_groups(group_ids):
         request = requests.get("http://api.meetup.com/2/members", params = params)
         data = request.json()
         return data
-
+    countGroupsDone = 0
     for group in group_ids:
         per_page = 200
         offset = 0
@@ -77,6 +91,9 @@ def get_members_from_groups(group_ids):
                 member_ids.append(member['id'])
         group_members_dict[group] = member_ids
         time.sleep(0.01)
+        countGroupsDone += 1
+        if countGroupsDone %100 == 0:
+            logging.info('Number of Groups Done : %s', countGroupsDone)
     return group_members_dict
 
 def get_events_from_groups(group_ids):
@@ -87,6 +104,7 @@ def get_events_from_groups(group_ids):
         data = request.json()
         return data
 
+    countGroupsDone = 0
     for group in group_ids:
         per_page = 200
         offset = 0
@@ -102,6 +120,9 @@ def get_events_from_groups(group_ids):
                 event_ids.append(member['id'])
         group_events_dict[group] = event_ids
         time.sleep(0.01)
+        countGroupsDone += 1
+        if countGroupsDone % 100 == 0:
+            logging.info('Number of Groups Done : %s', countGroupsDone)
     return group_events_dict
 
 def get_rsvp_from_events(event_ids):
