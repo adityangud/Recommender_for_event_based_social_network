@@ -9,7 +9,7 @@ import json
 
 UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
-logging.basicConfig(format='%(asctime)s %(message)s',level=logging.INFO)
+logging.basicConfig(format='%(asctime)s %(message)s', filename='info.log', level=logging.INFO)
 
 api_keys= ["API_KEY1", "API_KEY2"]
 current_index = 0
@@ -58,6 +58,13 @@ def main():
         create_json_file(group_events_dict, "cities/" + city[0] + "/group_events.json")
         logging.info('------- Events retrieval for all groups completed ---------')
 
+        flatten = [item for sublist in group_events_dict.values() for item in sublist]
+        set_of_events = set(flatten)
+        logging.info('-------- Event RSVPs retrieval for all events started -------')
+        event_rsvps_dict = get_rsvp_from_events(set_of_events)
+        create_json_file(event_rsvps_dict, "cities/" + city[0] + "/rsvp_events.json")
+        logging.info('-------- Event RSVPs retrieval for all events completed -------')
+
 
         logging.info('------- Events Info retrieval for all groups started ---------')
         all_events_info = dict()
@@ -95,7 +102,7 @@ def get_groups_from_cities(cities):
         offset = 0
         while results_count == per_page:
             response = get_results({"sign":"true","country":"US", "city":city,\
-                                    "state":state, "radius": 10, "key":api_keys[current_index], "order": 'id',\
+                                    "state":state, "radius": 1, "key":api_keys[current_index], "order": 'id',\
                                     "page": per_page, "offset": offset})
             offset += 1
             results_count = response['meta']['count']
