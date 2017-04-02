@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from __future__ import print_function
 import codecs
 import sys
 import requests
@@ -7,6 +8,8 @@ from collections import defaultdict
 import logging
 import json
 from socket import error as SocketError
+import configparser
+import os.path
 
 UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
@@ -37,6 +40,12 @@ default_loc = {
             'lon':-121.8863
         }
 }
+config = configparser.ConfigParser()
+config.read('crawler.cfg')
+members_groups_done = config.getint('Members', 'groups_done')
+events_groups_done = config.getint('Events', 'groups_done')
+
+num_request_attempts = 3
 
 def main():
     logging.info('Main Started')
@@ -47,16 +56,12 @@ def main():
     for city in cities:
         logging.info('Numbers for groups found for city %s : %s', city, len(cities_groups_dict[city]))
 
-
         logging.info('------- Members retrieval for all groups started ---------')
-        group_members_dict = get_members_from_groups(cities_groups_dict[city])
-        create_json_file(group_members_dict, "cities/"+ city[0]+"/group_members.json")
+        group_members_dict = get_members_from_groups(cities_groups_dict[city][members_groups_done:], city, members_groups_done)
         logging.info('------- Members retrieval for all groups completed ---------')
 
-
         logging.info('------- Events retrieval for all groups started ---------')
-        group_events_dict = get_events_from_groups(cities_groups_dict[city])
-        create_json_file(group_events_dict, "cities/" + city[0] + "/group_events.json")
+        group_events_dict = get_events_from_groups(cities_groups_dict[city][events_groups_done:], city, events_groups_done)
         logging.info('------- Events retrieval for all groups completed ---------')
 
         flatten = [item for sublist in group_events_dict.values() for item in sublist]
@@ -93,14 +98,13 @@ def get_groups_from_cities(cities):
     def get_results(params):
         try:
             request = requests.get("http://api.meetup.com/2/groups", params = params)
+            handle_throttling(request.headers)
+            data = request.json()
+            return data
         except (SocketError, requests.ConnectionError) as e:
             logging.error("Failed for API %s params %s", "http://api.meetup.com/2/groups", str(params))
-            logging.error("Response is : %s", request.json())
             logging.error("Socket or Connection Exception occured due to : %s", str(e))
             time.sleep(5)
-        handle_throttling(request.headers)
-        data = request.json()
-        return data
 
     for (city, state) in cities:
         group_ids = []
@@ -109,7 +113,7 @@ def get_groups_from_cities(cities):
         offset = 0
         while results_count == per_page:
             response = get_results({"sign":"true","country":"US", "city":city,\
-                                    "state":state, "radius": 1, "key":api_keys[current_index], "order": 'id',\
+                                    "state":state, "radius": 10, "key":api_keys[current_index], "order": 'id',\
                                     "page": per_page, "offset": offset})
             offset += 1
             results_count = response['meta']['count']
@@ -118,21 +122,32 @@ def get_groups_from_cities(cities):
         city_groups[(city, state)] = group_ids
     return city_groups
 
-def get_members_from_groups(group_ids):
+def get_members_from_groups(group_ids, city, members_groups_done):
     #return dict containing group vs list of member ids
     group_members_dict = defaultdict(lambda: [])
     def get_results(params):
-        try:
-            request = requests.get("http://api.meetup.com/2/members", params = params)
-        except (SocketError, requests.ConnectionError) as e:
-            logging.error("Failed for API %s params %s", "http://api.meetup.com/2/members", str(params))
-            logging.error("Response is : %s", request.json())
-            logging.error("Socket or Connection Exception occured due to : %s", str(e))
-            time.sleep(5)
-        handle_throttling(request.headers)
-        data = request.json()
-        return data
-    countGroupsDone = 0
+        retry = 0
+        while retry < num_request_attempts:
+            retry += 1
+            try:
+                request = requests.get("http://api.meetup.com/2/members", params = params)
+                if request.status_code == 500:
+                    eprint("Error code: 500", request.text)
+                    time.sleep(10)
+                else:
+                    handle_throttling(request.headers)
+                    data = request.json()
+                    return data
+            except:
+                logging.error("Failed for API %s params %s", "http://api.meetup.com/2/members", str(params))
+                eprint(sys.exc_info())
+                time.sleep(10)
+
+        if retry >= num_request_attempts:
+            eprint("Retried the request the maximum of", num_request_attempts, "times! Giving up!")
+            exit(request.status_code);
+
+    countGroupsDone = members_groups_done
     for group in group_ids:
         per_page = 200
         results_count = per_page
@@ -146,26 +161,40 @@ def get_members_from_groups(group_ids):
                 member_ids.append(member['id'])
         group_members_dict[group] = member_ids
         countGroupsDone += 1
-        if countGroupsDone %100 == 0:
+        if countGroupsDone %10 == 0:
+            ## filename, dictionary, Config Parent Key, Config Sub Key
+            dump_data_and_update_config("group_members.json", group_members_dict, city[0], 'Members', 'groups_done', countGroupsDone)
             logging.info('Number of Groups Done : %s', countGroupsDone)
-    return group_members_dict
 
-def get_events_from_groups(group_ids):
+    dump_data_and_update_config("group_members.json", group_members_dict, city[0], 'Members', 'groups_done', countGroupsDone)
+    logging.info('Number of Groups Done : %s', countGroupsDone)
+    return get_json_file("cities/" + city + "/" + "group_members.json")
+
+def get_events_from_groups(group_ids, city, event_groups_done):
     #return dict containing group vs list of event ids
     group_events_dict = defaultdict(lambda: [])
     def get_results(params):
-        try:
-            request = requests.get("http://api.meetup.com/2/events", params = params)
-        except (SocketError, requests.ConnectionError) as e:
-            logging.error("Failed for API %s params %s", "http://api.meetup.com/2/events", str(params))
-            logging.error("Response is : %s", request.json())
-            logging.error("Socket or Connection Exception occured due to : %s", str(e))
-            time.sleep(5)
-        handle_throttling(request.headers)
-        data = request.json()
-        return data
+        retry = 0
+        while retry < num_request_attempts:
+            retry += 1
+            try:
+                request = requests.get("http://api.meetup.com/2/events", params = params)
+                if request.status_code == 500:
+                    eprint("Error code: 500", request.text)
+                    time.sleep(10)
+                else:
+                    handle_throttling(request.headers)
+                    data = request.json()
+                    return data
+            except:
+                logging.error("Failed for API %s params %s", "http://api.meetup.com/2/events", str(params))
+                eprint(sys.exc_info())
+                time.sleep(10)
+        if retry >= num_request_attempts:
+            eprint("Retried the request the maximum of", num_request_attempts, "times! Giving up!")
+            exit(request.status_code);
 
-    countGroupsDone = 0
+    countGroupsDone = event_groups_done
     for group in group_ids:
         per_page = 200
         offset = 0
@@ -179,24 +208,37 @@ def get_events_from_groups(group_ids):
                 event_ids.append(member['id'])
         group_events_dict[group] = event_ids
         countGroupsDone += 1
-        if countGroupsDone % 100 == 0:
+        if countGroupsDone % 10 == 0:
+            ## filename, dictionary, Config Parent Key, Config Sub Key
+            dump_data_and_update_config("group_events.json", group_events_dict, city[0], 'Events', 'groups_done', countGroupsDone)
             logging.info('Number of Groups Done : %s', countGroupsDone)
-    return group_events_dict
+    dump_data_and_update_config("group_events.json", group_events_dict, city[0], 'Events', 'groups_done', countGroupsDone)
+    logging.info('Number of Groups Done : %s', countGroupsDone)
+    return get_json_file("cities/" + city + "/" + "group_events.json")
 
 def get_rsvp_from_events(event_ids):
     #return dict containing event vs list of rsvps (member) ids
     event_rsvps = defaultdict(lambda: list)
     def get_results(params):
-        try:
-            request = requests.get("http://api.meetup.com/2/rsvps", params = params)
-        except (SocketError, requests.ConnectionError) as e:
-            logging.error("Failed for API %s params %s", "http://api.meetup.com/2/rsvps", str(params))
-            logging.error("Response is : %s", request.json())
-            logging.error("Socket or Connection Exception occured due to : %s", str(e))
-            time.sleep(5)
-        handle_throttling(request.headers)
-        data = request.json()
-        return data
+        retry = 0
+        while retry < num_request_attempts:
+            retry += 1
+            try:
+                request = requests.get("http://api.meetup.com/2/rsvps", params = params)
+                if request.status_code == 500:
+                    eprint("Error code: 500", request.text)
+                    time.sleep(10)
+                else:
+                    handle_throttling(request.headers)
+                    data = request.json()
+                    return data
+            except:
+                logging.error("Failed for API %s params %s", "http://api.meetup.com/2/rsvps", str(params))
+                eprint(sys.exc_info())
+                time.sleep(10)
+        if retry >= num_request_attempts:
+            eprint("Retried the request the maximum of", num_request_attempts, "times! Giving up!")
+            exit(request.status_code);
 
     for event_id in event_ids:
         rsvp_ids = []
@@ -216,16 +258,25 @@ def get_members_info(member_ids):
     #return dict member attributes
     member_info = dict()
     def get_results(params):
-        try:
-            request = requests.get("http://api.meetup.com/2/members", params = params)
-        except (SocketError, requests.ConnectionError) as e:
-            logging.error("Failed for API %s params %s", "http://api.meetup.com/2/members", str(params))
-            logging.error("Response is : %s", request.json())
-            logging.error("Socket or Connection Exception occured due to : %s", str(e))
-            time.sleep(5)
-        handle_throttling(request.headers)
-        data = request.json()
-        return data
+        retry = 0
+        while retry < num_request_attempts:
+            retry += 1
+            try:
+                request = requests.get("http://api.meetup.com/2/members", params = params)
+                if request.status_code == 500:
+                    eprint("Error code: 500", request.text)
+                    time.sleep(10)
+                else:
+                    handle_throttling(request.headers)
+                    data = request.json()
+                    return data
+            except:
+                logging.error("Failed for API %s params %s", "http://api.meetup.com/2/members", str(params))
+                eprint(sys.exc_info())
+                time.sleep(10)
+        if retry >= num_request_attempts:
+            eprint("Retried the request the maximum of", num_request_attempts, "times! Giving up!")
+            exit(request.status_code);
 
     members_info_dict = dict()
     for i in range(0, len(member_ids), 150):
@@ -242,16 +293,26 @@ def get_events_info(event_ids, default_lat, default_lon):
     #return dict event attributes
 
     def get_results(params):
-        try:
-            request = requests.get("http://api.meetup.com/2/events", params=params)
-        except (SocketError, requests.ConnectionError) as e:
-            logging.error("Failed for API %s params %s", "http://api.meetup.com/2/events", str(params))
-            logging.error("Response is : %s", request.json())
-            logging.error("Socket or Connection Exception occured due to : %s", str(e))
-            time.sleep(5)
-        handle_throttling(request.headers)
-        data = request.json()
-        return data
+        retry = 0
+        while retry < num_request_attempts:
+            retry += 1
+            try:
+                request = requests.get("http://api.meetup.com/2/events", params=params)
+                if request.status_code == 500:
+                    eprint("Error code: 500", request.text)
+                    time.sleep(10)
+                else:
+                    handle_throttling(request.headers)
+                    data = request.json()
+                    return data
+            except:
+                logging.error("Failed for API %s params %s", "http://api.meetup.com/2/events", str(params))
+                eprint(sys.exc_info())
+                time.sleep(10)
+        if retry >= num_request_attempts:
+            eprint("Retried the request the maximum of", num_request_attempts, "times! Giving up!")
+            exit(request.status_code);
+
 
     events_info_dict = dict()
 
@@ -287,9 +348,31 @@ def handle_throttling(headers):
 
 def create_json_file(dictionary, filename):
     json_repr = json.dumps(dictionary)
-    f = open(filename, "w")
+    f = open(filename, "w+")
     f.write(json_repr)
     f.close()
+
+def get_json_file(filename):
+
+    if not os.path.exists(filename):
+        return {}
+
+    json_file = open(filename)
+    json_str = json_file.read()
+    return json.loads(json_str)
+
+def dump_data_and_update_config(filename, dictionary, city, parent_key, sub_key, countGroupsDone):
+    current_group_members_dict = get_json_file("cities/" + city + "/" + filename)
+    current_group_members_dict.update(dictionary)
+    create_json_file(current_group_members_dict, "cities/" + city + "/" + filename)
+    dictionary = dict()
+    config.set(parent_key, sub_key, str(countGroupsDone))
+    with open('crawler.cfg', 'wb') as configfile:
+        config.write(configfile)
+
+def eprint(*args, **kwargs):
+    """Convenience function to print to stderr."""
+    print(*args, file=sys.stderr, **kwargs)
 
 if __name__=="__main__":
     main()
