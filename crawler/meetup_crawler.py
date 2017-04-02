@@ -67,6 +67,7 @@ def main():
         flatten = [item for sublist in group_events_dict.values() for item in sublist]
         set_of_events = set(flatten)
         logging.info('-------- Event RSVPs retrieval for all events started -------')
+        logging.info('Total Number of Events for RSVP : %s', len(set_of_events))
         event_rsvps_dict = get_rsvp_from_events(set_of_events)
         create_json_file(event_rsvps_dict, "cities/" + city[0] + "/rsvp_events.json")
         logging.info('-------- Event RSVPs retrieval for all events completed -------')
@@ -240,6 +241,7 @@ def get_rsvp_from_events(event_ids):
             eprint("Retried the request the maximum of", num_request_attempts, "times! Giving up!")
             exit(request.status_code);
 
+    countEventsDone = 0
     for event_id in event_ids:
         rsvp_ids = []
         per_page = 200
@@ -252,6 +254,9 @@ def get_rsvp_from_events(event_ids):
             for rsvp in response['results']:
                 rsvp_ids.append(rsvp['member']['member_id'])
         event_rsvps[event_id] = rsvp_ids
+        countEventsDone+=1
+        if countEventsDone%10 == 0:
+            logging.info('Number of Events Done : %s', countEventsDone)
     return event_rsvps
 
 def get_members_info(member_ids):
