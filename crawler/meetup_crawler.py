@@ -44,7 +44,7 @@ config = configparser.ConfigParser()
 config.read('crawler.cfg')
 members_groups_done = config.getint('Members', 'groups_done')
 events_groups_done = config.getint('Events', 'groups_done')
-
+events_rsvp_done = config.getint('RSVPs', 'events_done')
 num_request_attempts = 3
 
 def main():
@@ -64,11 +64,11 @@ def main():
         group_events_dict = get_events_from_groups(cities_groups_dict[city][events_groups_done:], city, events_groups_done)
         logging.info('------- Events retrieval for all groups completed ---------')
 
-        flatten = [item for sublist in group_events_dict.values() for item in sublist]
-        set_of_events = set(flatten)
+        flatten_event = [item for sublist in group_events_dict.values() for item in sublist]
+        flatten_event.sort()
         logging.info('-------- Event RSVPs retrieval for all events started -------')
-        event_rsvps_dict = get_rsvp_from_events(set_of_events)
-        create_json_file(event_rsvps_dict, "cities/" + city[0] + "/rsvp_events.json")
+        logging.info('Total Number of Events for RSVP : %s', len(flatten_event))
+        event_rsvps_dict = get_rsvp_from_events(flatten_event[events_rsvp_done:], city, events_rsvp_done)
         logging.info('-------- Event RSVPs retrieval for all events completed -------')
 
 
@@ -216,7 +216,7 @@ def get_events_from_groups(group_ids, city, event_groups_done):
     logging.info('Number of Groups Done : %s', countGroupsDone)
     return get_json_file("cities/" + city[0] + "/" + "group_events.json")
 
-def get_rsvp_from_events(event_ids):
+def get_rsvp_from_events(event_ids, city, events_rsvp_done):
     #return dict containing event vs list of rsvps (member) ids
     event_rsvps = defaultdict(lambda: list)
     def get_results(params):
@@ -240,6 +240,7 @@ def get_rsvp_from_events(event_ids):
             eprint("Retried the request the maximum of", num_request_attempts, "times! Giving up!")
             exit(request.status_code);
 
+    countEventsDone = events_rsvp_done
     for event_id in event_ids:
         rsvp_ids = []
         per_page = 200
@@ -252,7 +253,13 @@ def get_rsvp_from_events(event_ids):
             for rsvp in response['results']:
                 rsvp_ids.append(rsvp['member']['member_id'])
         event_rsvps[event_id] = rsvp_ids
-    return event_rsvps
+        countEventsDone+=1
+        if countEventsDone%100 == 0:
+            dump_data_and_update_config("rsvp_events.json", event_rsvps, city[0], 'RSVPs', 'events_done', countEventsDone)
+            logging.info('Number of Events Done : %s', countEventsDone)
+    dump_data_and_update_config("rsvp_events.json", event_rsvps, city[0], 'RSVPs', 'events_done', countEventsDone)
+    logging.info('Number of Events Done : %s', countEventsDone)
+    return get_json_file("cities/" + city[0] + "/" + "rsvp_events.json")
 
 def get_members_info(member_ids):
     #return dict member attributes
@@ -365,7 +372,7 @@ def dump_data_and_update_config(filename, dictionary, city, parent_key, sub_key,
     current_group_members_dict = get_json_file("cities/" + city + "/" + filename)
     current_group_members_dict.update(dictionary)
     create_json_file(current_group_members_dict, "cities/" + city + "/" + filename)
-    dictionary = dict()
+    dictionary.clear()
     config.set(parent_key, sub_key, str(countGroupsDone))
     with open('crawler.cfg', 'wb') as configfile:
         config.write(configfile)
