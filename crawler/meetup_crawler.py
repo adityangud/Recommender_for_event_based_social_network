@@ -65,6 +65,7 @@ def main():
         logging.info('------- Events retrieval for all groups completed ---------')
 
         flatten_event = [item for sublist in group_events_dict.values() for item in sublist]
+        flatten_event.sort()
         logging.info('-------- Event RSVPs retrieval for all events started -------')
         logging.info('Total Number of Events for RSVP : %s', len(flatten_event))
         event_rsvps_dict = get_rsvp_from_events(flatten_event[events_rsvp_done:], city, events_rsvp_done)
@@ -371,7 +372,7 @@ def dump_data_and_update_config(filename, dictionary, city, parent_key, sub_key,
     current_group_members_dict = get_json_file("cities/" + city + "/" + filename)
     current_group_members_dict.update(dictionary)
     create_json_file(current_group_members_dict, "cities/" + city + "/" + filename)
-    dictionary = dict()
+    dictionary.clear()
     config.set(parent_key, sub_key, str(countGroupsDone))
     with open('crawler.cfg', 'wb') as configfile:
         config.write(configfile)
