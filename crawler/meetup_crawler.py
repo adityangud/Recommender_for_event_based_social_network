@@ -67,7 +67,7 @@ def main():
         flatten_event = [item for sublist in group_events_dict.values() for item in sublist]
         logging.info('-------- Event RSVPs retrieval for all events started -------')
         logging.info('Total Number of Events for RSVP : %s', len(flatten_event))
-        event_rsvps_dict = get_rsvp_from_events(flatten_event, city, events_rsvp_done)
+        event_rsvps_dict = get_rsvp_from_events(flatten_event[events_rsvp_done:], city, events_rsvp_done)
         logging.info('-------- Event RSVPs retrieval for all events completed -------')
 
 
