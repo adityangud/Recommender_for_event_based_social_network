@@ -168,7 +168,7 @@ def get_members_from_groups(group_ids, city, members_groups_done):
 
     dump_data_and_update_config("group_members.json", group_members_dict, city[0], 'Members', 'groups_done', countGroupsDone)
     logging.info('Number of Groups Done : %s', countGroupsDone)
-    return get_json_file("cities/" + city + "/" + "group_members.json")
+    return get_json_file("cities/" + city[0] + "/" + "group_members.json")
 
 def get_events_from_groups(group_ids, city, event_groups_done):
     #return dict containing group vs list of event ids
@@ -214,7 +214,7 @@ def get_events_from_groups(group_ids, city, event_groups_done):
             logging.info('Number of Groups Done : %s', countGroupsDone)
     dump_data_and_update_config("group_events.json", group_events_dict, city[0], 'Events', 'groups_done', countGroupsDone)
     logging.info('Number of Groups Done : %s', countGroupsDone)
-    return get_json_file("cities/" + city + "/" + "group_events.json")
+    return get_json_file("cities/" + city[0] + "/" + "group_events.json")
 
 def get_rsvp_from_events(event_ids):
     #return dict containing event vs list of rsvps (member) ids
