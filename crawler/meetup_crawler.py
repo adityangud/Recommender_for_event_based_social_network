@@ -87,7 +87,7 @@ def main():
         for group in group_members_dict:
             logging.info('Numbers for members found for group %s : %s', group, len(group_members_dict[group]))
             all_members_info.update(get_members_info(group_members_dict[group]))
-        create_json_file(all_events_info, "cities/" + city[0] + "/members_info.json")
+        create_json_file(all_members_info, "cities/" + city[0] + "/members_info.json")
         logging.info('------- Members Info retrieval for all groups completed ---------')
         logging.info('Total Number of members in the city %s : %s', city, len(all_members_info))
 
