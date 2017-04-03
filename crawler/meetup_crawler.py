@@ -338,6 +338,7 @@ def get_events_info(event_ids, default_lat, default_lon):
                 event_info["description"] = event["description"]
             else:
                 event_info["description"] = ""
+            event_info["time"] = event["time"]
             events_info_dict[event['id']] = event_info
     return events_info_dict
 
