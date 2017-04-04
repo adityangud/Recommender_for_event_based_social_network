@@ -349,7 +349,7 @@ def handle_throttling(headers):
     if int(remaining) < 4:
         current_index = (current_index + 1)%2
         request = requests.get("http://api.meetup.com/2/rsvps", params={'key':api_keys[current_index]})
-        new_remaining = request.headers['X-RateLimit-Reset']
+        new_remaining = request.headers['X-RateLimit-Remaining']
         new_reset = request.headers['X-RateLimit-Reset']
         if int(new_remaining) < 4:
             time.sleep(float(new_reset) + 0.5)
