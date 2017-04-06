@@ -24,7 +24,7 @@ def main():
     print len(members_info)
     print len(member_events)
 
-help_text = """Usage: python main.py -f FILE"""
+help_text = """Usage: python index.py -c|--city CITY_NAME"""
 
 def usage():
     print help_text
