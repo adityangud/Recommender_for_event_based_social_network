@@ -18,7 +18,7 @@ class ContentRecommender:
             training_event = ""
             for event_id in training_events_dict[user_id]:
                 training_event += events_info[event_id]["description"]
-            training_vec = self.word_tfidf.transform(training_event)
+            training_vec = self.word_tfidf.transform(np.array([training_event]))
             self.training_vecs[user_id] = training_vec
         #print self.word_tfidf.vocabulary
         pass
