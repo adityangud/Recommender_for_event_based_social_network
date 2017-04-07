@@ -4,7 +4,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 class ContentRecommender:
 
     def __init__(self):
-        self.word_tfidf = TfidfVectorizer(ngram_range=(1, 1), analyzer='word', sublinear_tf=True, max_df=0.5, stop_words='english')
+        self.word_tfidf = TfidfVectorizer(ngram_range=(1, 1), analyzer='word', sublinear_tf=True, max_df=0.5, stop_words='english', norm="l2")
 
 #TODO - Fit - form a vocab using training events(all valid events).
 #TODO - Ideas for vocab (1 gram, 2 gram or ngram).
