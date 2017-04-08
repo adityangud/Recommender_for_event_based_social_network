@@ -38,6 +38,7 @@ class ContentRecommender:
         for i in xrange(len(potential_events)):
             simscores[member_id][potential_events[i]] = similarity_scores[i]
 
+        # print simscores
         # TEST: Pick top 5 similar scores. Print all events. Print top 5 events.
         #args =  similarity_scores.argsort()[:-5:-1]
         #print "All event ids ", info_repo["members_events"]['11173777']
