@@ -49,7 +49,7 @@ num_request_attempts = 3
 
 def main():
     logging.info('Main Started')
-    cities = [("Phoenix", "AZ")]
+    cities = [("College Station", "TX")]
     cities_groups_dict = get_groups_from_cities(cities)
 
     logging.info('Groups retrieval for all cities completed')
@@ -113,7 +113,7 @@ def get_groups_from_cities(cities):
         offset = 0
         while results_count == per_page:
             response = get_results({"sign":"true","country":"US", "city":city,\
-                                    "state":state, "radius": 10, "key":api_keys[current_index], "order": 'id',\
+                                    "state":state, "radius": 1, "key":api_keys[current_index], "order": 'id',\
                                     "page": per_page, "offset": offset})
             offset += 1
             results_count = response['meta']['count']
@@ -201,7 +201,7 @@ def get_events_from_groups(group_ids, city, event_groups_done):
         results_count = per_page
         event_ids = []
         while results_count == per_page:
-            response = get_results({"group_id": group, "page": per_page, "offset": offset, "key": api_keys[current_index]})
+            response = get_results({"group_id": group, "page": per_page, "offset": offset, "key": api_keys[current_index], "status": "past"})
             offset += 1
             results_count = response['meta']['count']
             for member in response['results']:
