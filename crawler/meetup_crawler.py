@@ -158,7 +158,7 @@ def get_members_from_groups(group_ids, city, members_groups_done):
             offset += 1
             results_count = response['meta']['count']
             for member in response['results']:
-                member_ids.append(member['id'])
+                member_ids.append(str(member['id']))
         group_members_dict[group] = member_ids
         countGroupsDone += 1
         if countGroupsDone %10 == 0:
@@ -204,8 +204,8 @@ def get_events_from_groups(group_ids, city, event_groups_done):
             response = get_results({"group_id": group, "page": per_page, "offset": offset, "key": api_keys[current_index], "status": "past"})
             offset += 1
             results_count = response['meta']['count']
-            for member in response['results']:
-                event_ids.append(member['id'])
+            for event in response['results']:
+                event_ids.append(str(event['id']))
         group_events_dict[group] = event_ids
         countGroupsDone += 1
         if countGroupsDone % 10 == 0:
@@ -251,7 +251,7 @@ def get_rsvp_from_events(event_ids, city, events_rsvp_done):
             offset += 1
             results_count = response['meta']['count']
             for rsvp in response['results']:
-                rsvp_ids.append(rsvp['member']['member_id'])
+                rsvp_ids.append(str(rsvp['member']['member_id']))
         event_rsvps[event_id] = rsvp_ids
         countEventsDone+=1
         if countEventsDone%100 == 0:

@@ -1,28 +1,29 @@
 from preprocessing import *
-import sys, getopt
+import argparse
+from partition import *
+from content.content_recommender import ContentRecommender
+import datetime
 
-def content_classifier(repo):
+def content_classifier(repo, timestamp):
     #Wrapper for content classification.
     #call train and test for all member and
-    #events and print the results.
+    #events and print the results
 
-    #train(repo, ...)
-    #test(repo, ...)
-    pass
+    training_events_dict = get_member_events_dict_in_range(repo, timestamp - train_data_interval, timestamp)
+
+    potential_events = filter_events_by_time_range(repo, list(repo['events_info'].keys()), timestamp,
+                                                   timestamp + train_data_interval)
+
+    contentRecommender = ContentRecommender()
+    contentRecommender.train(training_events_dict, repo)
+    print contentRecommender.test('11173777', potential_events, repo)
 
 def main():
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "c:", ["city="])
-    except getopt.GetoptError as err:
-        print str(err)
-        usage()
-        sys.exit(2)
+    parser = argparse.ArgumentParser(description='Run Event Recommender')
+    parser.add_argument('--city', help='Enter the city name')
+    args = parser.parse_args()
 
-    city = None
-    for o, a in opts:
-        if o in ("-c", "--city"):
-            city = a
-
+    city = args.city
     group_members, group_events = load_groups("../crawler/cities/" + city + "/group_members.json",
                                                             "../crawler/cities/" + city + "/group_events.json")
     events_info = load_events("../crawler/cities/" + city + "/events_info.json")
@@ -34,18 +35,20 @@ def main():
     repo['members_info'] = members_info
     repo['members_events'] = member_events
 
-    #Call content based classifer train and test functions from here. Pass the repo
-    #as an argument to these functions.
-    content_classifier(repo)
+    start_time = 1262304000 # 1st Jan 2010
+    end_time = 1451606400 # 1st Jan 2016
 
-    print len(events_info)
-    print len(members_info)
-    print len(member_events)
+    timestamps = get_timestamps(start_time, end_time)
 
-help_text = """Usage: python index.py -c|--city CITY_NAME"""
+    for t in timestamps:
+        print "Partition at timestamp ", datetime.datetime.fromtimestamp(t), " are : "
 
-def usage():
-    print help_text
+        partitioned_repo = get_partitioned_repo(t, repo)
+
+
+        #Call content based classifer train and test functions from here. Pass the repo
+        #as an argument to these functions.
+        content_classifier(partitioned_repo, t)
 
 if __name__ == "__main__":
     main()
