@@ -13,6 +13,7 @@ class ContentRecommender:
         ## input : dict([user, list of events_ids])
         events_info = info_repo["events_info"]
         self.training_vecs = {}
+        print "Training events ", training_events_dict['11173777']
         training_events = np.array([events_info[event_id]["description"] for user_id in training_events_dict for event_id in training_events_dict[user_id]])
         self.word_tfidf.fit(training_events)
         for user_id in training_events_dict:
@@ -32,6 +33,7 @@ class ContentRecommender:
         test_events_vecs = self.word_tfidf.transform(test_events)
         similarity_scores = cosine_similarity(member_vec, test_events_vecs).flatten()
         args =  similarity_scores.argsort()[:-5:-1]
+        print "All event ids ", info_repo["members_events"]['11173777']
         top_5_recommended_events = []
         for i in args:
             top_5_recommended_events.append(potential_events[i])
