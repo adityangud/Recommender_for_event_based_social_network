@@ -3,6 +3,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from collections import defaultdict
 import datetime
+from src.measurement import top_5_recommendation_measurement
 
 class TimeRecommender:
     def __init__(self):
@@ -47,11 +48,19 @@ class TimeRecommender:
         for i in xrange(len(potential_events)):
             simscores[member_id][potential_events[i]] = similarity_scores[i]
 
+        top_indices = similarity_scores.argsort()[:-5:-1]
+        top_5_recommended_events = []
+        for i in top_indices:
+           top_5_recommended_events.append(potential_events[i])
+
+        top_5_recommendation_measurement(top_5_recommended_events, info_repo["members_events"][member_id],\
+                                         member_id, "time_recommender")
         # TEST: Pick top 5 similar scores. Print all events. Print top 5 events.
-        # args =  similarity_scores.argsort()[:-5:-1]
-        # print "All event ids ", info_repo["members_events"]['11173777']
-        # top_5_recommended_events = []
-        # for i in args:
-        #    top_5_recommended_events.append(potential_events[i])
-        # if member_id == '11173777':
-        #     print top_5_recommended_events
+        #args =  similarity_scores.argsort()[:-5:-1]
+        #print args
+        #print "All event ids ", info_repo["members_events"]['11173777']
+        #top_5_recommended_events = []
+        #for i in args:
+        #   top_5_recommended_events.append(potential_events[i])
+        #if member_id == '11173777':
+        #    print top_5_recommended_events
