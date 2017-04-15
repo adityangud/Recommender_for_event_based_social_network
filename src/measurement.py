@@ -25,7 +25,8 @@ def top_5_recommendation_measurement(top_events, all_events, member_id, feature)
         member_feature_accuracy[feature][member_id] = accuracy_obj
 
     intersection = sum([1 for x in top_events if x in all_events])
-    union = max(len(top_events), len(all_events))
+    #Number of right predictions / 5
+    union = len(top_events) #5
     recommedation_accuracy = intersection / float(union) * 100.0
     accuracy_obj.update_average(recommedation_accuracy)
     print "Recommendation accuracy for", feature , member_id, "is :", accuracy_obj.get_average(), "Percent"
