@@ -97,7 +97,7 @@ def get_groups_from_cities(cities):
     city_groups = defaultdict(lambda: list)
     def get_results(params):
         try:
-            request = requests.get("http://api.meetup.com/2/groups", params = params)
+            request = requests.get("http://api.meetup.com/find/groups", params = params)
             handle_throttling(request.headers)
             data = request.json()
             return data
@@ -109,16 +109,16 @@ def get_groups_from_cities(cities):
     for (city, state) in cities:
         group_ids = []
         per_page = 200
-        results_count = per_page
         offset = 0
+        results_count = per_page
         while results_count == per_page:
-            response = get_results({"sign":"true","country":"US", "city":city,\
-                                    "state":state, "radius": 1, "key":api_keys[current_index], "order": 'id',\
+            response = get_results({"sign":"true","country":"US", "location":city,\
+                                    "radius": 1, "key":api_keys[current_index],\
                                     "page": per_page, "offset": offset})
+            results_count = len(response)
             offset += 1
-            results_count = response['meta']['count']
-            for group in response['results']:
-                group_ids.append(group['id'])
+            for r in response:
+                group_ids.append(r['id'])
         city_groups[(city, state)] = group_ids
     return city_groups
 
