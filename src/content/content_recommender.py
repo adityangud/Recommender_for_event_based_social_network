@@ -39,7 +39,7 @@ class ContentRecommender:
         for i in xrange(len(potential_events)):
             simscores[member_id][potential_events[i]] = similarity_scores[i]
 
-        top_indices = similarity_scores.argsort()[:-5:-1]
+        top_indices = similarity_scores.argsort()[:-6:-1]
         top_5_recommended_events = []
         for i in top_indices:
             top_5_recommended_events.append(potential_events[i])
