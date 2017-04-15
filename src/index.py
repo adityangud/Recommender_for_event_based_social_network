@@ -3,6 +3,7 @@ import argparse
 from partition import *
 from content.content_recommender import ContentRecommender
 from temporal.time_recommender import TimeRecommender
+from location.location_recommender import LocationRecommender
 import datetime
 
 def content_classifier(repo, timestamp, simscores):
@@ -35,8 +36,19 @@ def time_classifier(repo, timestamp, simscores):
     #TEST: Call test only for member_id 11173777
     #timeRecommender.test('11173777', potential_events, repo, simscores)
     for member_id in repo['members_info']:
-        timeRecommender.test(member_id, potential_events, repo, simscores)
+       timeRecommender.test(member_id, potential_events, repo, simscores)
 
+def loc_classifier(repo, timestamp, simscores):
+    training_events_dict = get_member_events_dict_in_range(repo, timestamp - train_data_interval, timestamp)
+    locationRecommender = LocationRecommender()
+    locationRecommender.train(training_events_dict, repo)
+    potential_events = filter_events_by_time_range(repo, list(repo['events_info'].keys()), timestamp,
+                                                   timestamp + train_data_interval)
+
+    #TEST: Call test only for memeber_id 11173777
+    #locationRecommender.test('11173777', potential_events, repo, simscores)
+    for member_id in repo['members_info']:
+        locationRecommender.test(member_id, potential_events, repo, simscores)
 def main():
     parser = argparse.ArgumentParser(description='Run Event Recommender')
     parser.add_argument('--city', help='Enter the city name')
@@ -74,6 +86,8 @@ def main():
         content_classifier(partitioned_repo, t, simscores_across_features['content_classifier'])
 
         time_classifier(partitioned_repo, t, simscores_across_features['time_classifier'])
+
+        loc_classifier(partitioned_repo, t, simscores_across_features['location_classifier'])
 
 if __name__ == "__main__":
     main()
