@@ -35,13 +35,13 @@ class TimeRecommender:
             timevector = [0 for x in xrange(24 * 7)]
             for event_id in training_events_dict[user_id]:
                 self.add_time_vector(events_info[event_id]["time"], timevector)
-            self.training_vecs[user_id] = timevector
+            self.training_vecs[user_id] = np.array([timevector])
 
     # Transform - form vectors for a user's past events. Sum these vectors to form user vector. Calculate similarity scores and rank events.
     def test(self, member_id, potential_events, info_repo, simscores):
         ## input : member_id, list_of_events
         ## output : [cosine similarity scores]
-        member_vec = np.array(self.training_vecs[member_id])
+        member_vec = self.training_vecs[member_id]
         events_info = info_repo["events_info"]
         test_events_vecs = np.array([self.get_time_vector(events_info[event_id]["time"]) for event_id in potential_events])
         similarity_scores = cosine_similarity(member_vec, test_events_vecs).flatten()
