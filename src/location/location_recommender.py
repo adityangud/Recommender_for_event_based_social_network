@@ -42,7 +42,7 @@ class LocationRecommender:
             lat = events_info[event_id]["lat"]
             lon = events_info[event_id]["lon"]
             similarity_scores.append(simscores[member_id][event_id])
-            simscores[member_id][event_id] = np.exp(kde.score(np.array([lat, lon]).T))
+            simscores[member_id][event_id] = np.exp(kde.score([np.array([lat, lon]).T]))
         #print simscores
         #TEST: Pick top 5 similar scores. Print all events. Print top 5 events.
         #similarity_scores = np.array(similarity_scores)
