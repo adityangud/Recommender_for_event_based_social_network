@@ -56,7 +56,7 @@ def filter_events_by_time_range(repo, events, start, end):
     new_event_ids = []
     events_info = repo["events_info"]
     for e in events:
-        if events_info[e]['time']/1000 >= start and events_info[e]['time']/1000 <= end:
+        if events_info[e]['time'] >= start and events_info[e]['time'] <= end:
             new_event_ids.append(e)
 
     return new_event_ids
@@ -67,7 +67,7 @@ def get_intersection(list1, list2):
 def filter_events_info(events_info, start, end):
     new_events_info = {}
     for e in events_info:
-        if (events_info[e]['time']/1000) >= start and (events_info[e]['time']/1000) <= end:
+        if events_info[e]['time'] >= start and events_info[e]['time'] <= end:
             new_events_info[e] = events_info[e]
 
     return new_events_info
