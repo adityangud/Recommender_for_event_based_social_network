@@ -1,3 +1,5 @@
+import time
+
 train_data_interval = ((364 / 2) * 24 * 60 * 60)  # (6 months, or half a year)
 
 def get_timestamps(start_time, end_time):
@@ -16,9 +18,10 @@ def get_partitioned_repo(timestamp, repo):
     member_events_in_range = dict()
     member_events = repo['members_events']
     members_info = repo['members_info']
+    all_event_ids_in_range = sorted(events_info_in_range.keys())
     for member in members_info:
         event_ids_for_member = member_events[member]
-        filtered_event_ids = get_intersection(event_ids_for_member, events_info_in_range.keys())
+        filtered_event_ids = get_intersection(all_event_ids_in_range, event_ids_for_member)
         if len(filtered_event_ids) != 0:
             member_events_in_range[member] = filtered_event_ids
 
@@ -27,7 +30,7 @@ def get_partitioned_repo(timestamp, repo):
     group_events = repo['group_events']
     for group_id in group_events:
         event_ids_for_group = group_events[group_id]
-        filtered_event_ids = get_intersection(event_ids_for_group, events_info_in_range.keys())
+        filtered_event_ids = get_intersection(all_event_ids_in_range, event_ids_for_group)
         if len(filtered_event_ids) != 0:
             group_events_in_range[group_id] = filtered_event_ids
 
@@ -56,18 +59,39 @@ def filter_events_by_time_range(repo, events, start, end):
     new_event_ids = []
     events_info = repo["events_info"]
     for e in events:
-        if events_info[e]['time']/1000 >= start and events_info[e]['time']/1000 <= end:
+        if events_info[e]['time'] >= start and events_info[e]['time'] <= end:
             new_event_ids.append(e)
 
     return new_event_ids
 
-def get_intersection(list1, list2):
-    return list(set(list1).intersection(set(list2)))
+def get_intersection(bigger_list, smaller_list):
+    common = []
+    for element in smaller_list:
+        if binarySearch(bigger_list, element):
+            common.append(element)
+    return common
+
+def binarySearch(alist, item):
+    first = 0
+    last = len(alist)-1
+    found = False
+
+    while first<=last and not found:
+        midpoint = (first + last)//2
+        if alist[midpoint] == item:
+            found = True
+        else:
+            if item < alist[midpoint]:
+                last = midpoint-1
+            else:
+                first = midpoint+1
+
+    return found
 
 def filter_events_info(events_info, start, end):
     new_events_info = {}
     for e in events_info:
-        if (events_info[e]['time']/1000) >= start and (events_info[e]['time']/1000) <= end:
+        if events_info[e]['time'] >= start and events_info[e]['time'] <= end:
             new_events_info[e] = events_info[e]
 
     return new_events_info
