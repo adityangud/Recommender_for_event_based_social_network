@@ -170,7 +170,7 @@ def get_event_info():
 
     for i in xrange(len(event_id)):
         city = groups_city_dict[event_groups_dict[event_id[i]]]
-        events_info_dict[city][event_id[i]]["time"] = str(event_time[i])
+        events_info_dict[city][event_id[i]]["time"] = int(event_time[i])
         if pd.isnull(description[i]):
             desc = ""
         else:
