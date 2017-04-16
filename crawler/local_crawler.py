@@ -43,18 +43,29 @@ def create_json_file(dictionary, filename):
 
 def main():
     cities = ["PHOENIX", "SAN JOSE", "CHICAGO"]
+    logging.info("Start get_groups_from_cities()")
     get_groups_from_cities(cities)
+    logging.info("End get_groups_from_cities()")
+    logging.info("Start get_events_from_groups()")
     get_events_from_groups()
+    logging.info("End get_events_from_groups()")
+    logging.info("Start get_members_from_groups()")
     get_members_from_groups()
+    logging.info("End get_members_from_groups()")
+    logging.info("Start get_rsvp_from_events()")
     get_rsvp_from_events()
+    logging.info("End get_rsvp_from_events()")
+    logging.info("Start get_member_info()")
     get_member_info()
+    logging.info("End get_member_info()")
+    logging.info("Start get_event_info()")
     get_event_info()
-
+    logging.info("End get_event_info()")
 
 def get_groups_from_cities(cities):
     global city_groups_dict
     city_data = pd.read_csv("mclre_data/groups.csv")
-    city_list = city_data.region
+    city_list = list(city_data.region)
     group_list = list(city_data.group_id)
     for i in xrange(len(city_list)):
         city_groups_dict[str(city_list[i])].append(str(group_list[i]))
@@ -66,8 +77,8 @@ def get_events_from_groups():
     global groups_city_dict
     global event_groups_dict
 
-    group_ids = group_events.group_id
-    event_ids = group_events.event_id
+    group_ids = list(group_events.group_id)
+    event_ids = list(group_events.event_id)
     for i in xrange(len(group_ids)):
         group_events_dict[groups_city_dict[str(group_ids[i])]][str(group_ids[i])].append(str(event_ids[i]))
         event_groups_dict[str(event_ids[i])] = str(group_ids[i])
@@ -79,8 +90,8 @@ def get_members_from_groups():
     global group_members_dict
     global groups_city_dict
 
-    group_ids = group_members.group_id
-    member_ids = group_members.user_id
+    group_ids = list(group_members.group_id)
+    member_ids = list(group_members.user_id)
     for i in xrange(len(group_ids)):
         group_members_dict[groups_city_dict[str(group_ids[i])]][str(group_ids[i])].append(str(member_ids[i]))
         member_groups_dict[str(member_ids[i])] = str(group_ids[i])
@@ -97,9 +108,9 @@ def get_rsvp_from_events():
     event_list = []
     for i in xrange(1, 18):
         rsvp_data = pd.read_csv("mclre_data/rsvps_"+str(i)+".csv")
-        response_list.extend(rsvp_data.response)
-        member_list.extend(rsvp_data.user_id)
-        event_list.extend(rsvp_data.event_id)
+        response_list.extend(list(rsvp_data.response))
+        member_list.extend(list(rsvp_data.user_id))
+        event_list.extend(list(rsvp_data.event_id))
 
     for i in xrange(len(response_list)):
         if response_list[i] == "yes":
@@ -117,11 +128,11 @@ def get_member_info():
     long = []
     for i in xrange(1, 8):
         user_data = pd.read_csv("mclre_data/users_"+str(i)+".csv")
-        member_id.extend(user_data.user_id)
-        lat.extend(user_data.latitude)
-        long.extend(user_data.longitude)
+        member_id.extend(list(user_data.user_id))
+        lat.extend(list(user_data.latitude))
+        long.extend(list(user_data.longitude))
 
-    for i in xrange(len(user_data)):
+    for i in xrange(len(member_id)):
         city = groups_city_dict[member_groups_dict[str(member_id[i])]]
         members_info_dict[city][str(member_id[i])]["lat"] = float(lat[i])
         members_info_dict[city][str(member_id[i])]["lon"] = float(long[i])
@@ -152,10 +163,10 @@ def get_event_info():
 
     for i in xrange(1, 25):
         event_data = pd.read_csv("mclre_data/events_"+str(i)+".csv")
-        event_id.extend(event_data.event_id)
-        location.extend(event_data.location_id)
-        event_time.extend(event_data.time)
-        description.extend(event_data.description)
+        event_id.extend(list(event_data.event_id))
+        location.extend(list(event_data.location_id))
+        event_time.extend(list(event_data.time))
+        description.extend(list(event_data.description))
 
     for i in xrange(len(event_id)):
         city = groups_city_dict[event_groups_dict[event_id[i]]]
