@@ -10,11 +10,10 @@ def get_partitioned_repo(timestamp, repo):
 
     ## finding all events happened in training interval
     events_info = repo['events_info']
-
     events_info_in_range = filter_events_info(events_info, start_time, end_time)
-    member_events_in_range = dict()
 
     ## finding member info of all those who rsvp to above training_events
+    member_events_in_range = dict()
     member_events = repo['members_events']
     members_info = repo['members_info']
     for member in members_info:
@@ -23,13 +22,28 @@ def get_partitioned_repo(timestamp, repo):
         if len(filtered_event_ids) != 0:
             member_events_in_range[member] = filtered_event_ids
 
+    ## finding all relevant(in time limit) events for all groups
+    group_events_in_range = dict()
+    group_events = repo['group_events']
+    for group_id in group_events:
+        event_ids_for_group = group_events[group_id]
+        filtered_event_ids = get_intersection(event_ids_for_group, events_info_in_range.keys())
+        if len(filtered_event_ids) != 0:
+            group_events_in_range[group_id] = filtered_event_ids
+
+    ## finding group of those events which happened in timerange
+    event_group_in_range = dict()
+    event_group = repo['event_group']
+    for event in events_info_in_range:
+        if event in event_group:
+            event_group_in_range[event] = event_group[event]
+
     ## finding members info of all those which are involved in timerange
     member_info_in_range = dict()
     for member in member_events_in_range:
         member_info_in_range[member] = members_info[member]
 
-
-    return {'events_info':events_info_in_range, 'members_events': member_events_in_range, 'members_info': member_info_in_range}
+    return {'events_info':events_info_in_range, 'members_events': member_events_in_range, 'members_info': member_info_in_range, 'group_events': group_events_in_range, 'event_group': event_group_in_range}
 
 def get_member_events_dict_in_range(repo, start_time, end_time):
     member_events = repo['members_events']

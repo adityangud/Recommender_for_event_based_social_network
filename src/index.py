@@ -4,6 +4,7 @@ from partition import *
 from content.content_recommender import ContentRecommender
 from temporal.time_recommender import TimeRecommender
 from location.location_recommender import LocationRecommender
+from group_frequency.grp_freq_recommender import GrpFreqRecommender
 import datetime
 
 def content_classifier(repo, timestamp, simscores):
@@ -49,22 +50,37 @@ def loc_classifier(repo, timestamp, simscores):
     #locationRecommender.test('11173777', potential_events, repo, simscores)
     for member_id in repo['members_info']:
         locationRecommender.test(member_id, potential_events, repo, simscores)
+
+def grp_freq_classifier(repo, timestamp, simscores):
+    training_events_dict = get_member_events_dict_in_range(repo, timestamp - train_data_interval, timestamp)
+    grp_freq_recommender = GrpFreqRecommender()
+    grp_freq_recommender.train(training_events_dict, repo)
+    potential_events = filter_events_by_time_range(repo, list(repo['events_info'].keys()), timestamp,
+                                                   timestamp + train_data_interval)
+    #TEST: Call test only for memeber_id 11173777
+    #grp_freq_recommender.test('11173777', potential_events, repo, simscores)
+    for member_id in repo['members_info']:
+       grp_freq_recommender.test(member_id, potential_events, repo, simscores)
+
 def main():
     parser = argparse.ArgumentParser(description='Run Event Recommender')
     parser.add_argument('--city', help='Enter the city name')
     args = parser.parse_args()
 
     city = args.city
-    group_members, group_events = load_groups("../crawler/cities/" + city + "/group_members.json",
+    group_members, group_events, event_group = load_groups("../crawler/cities/" + city + "/group_members.json",
                                                             "../crawler/cities/" + city + "/group_events.json")
     events_info = load_events("../crawler/cities/" + city + "/events_info.json")
     members_info = load_members("../crawler/cities/" + city + "/members_info.json")
     member_events = load_rsvps("../crawler/cities/" + city + "/rsvp_events.json")
 
     repo = dict()
+    repo['group_events'] = group_events
+    repo['group_members'] = group_members
     repo['events_info'] = events_info
     repo['members_info'] = members_info
     repo['members_events'] = member_events
+    repo['event_group'] = event_group
 
     #simscores_across_features is a dictionary to store similarity score obtained for each feature
     #for each member and for a given event. For example in case of content classifer we will
@@ -88,6 +104,8 @@ def main():
         time_classifier(partitioned_repo, t, simscores_across_features['time_classifier'])
 
         loc_classifier(partitioned_repo, t, simscores_across_features['location_classifier'])
+
+        grp_freq_classifier(partitioned_repo, t, simscores_across_features['grp_freq_classifier'])
 
 if __name__ == "__main__":
     main()
