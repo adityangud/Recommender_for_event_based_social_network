@@ -23,6 +23,11 @@ class GrpFreqRecommender:
             score = float(len(user_attended_group_events)) / len(user_attended_event_ids)
             similarity_scores.append(score)
             simscores[member_id][event_id] = score
+
+        # similarity_scores = np.array(similarity_scores)
+        # top_indices = similarity_scores.argsort()[:-6:-1]
+        # for i in top_indices:
+        #     simscores[member_id][potential_events[i]] = similarity_scores[i]
         # print simscores
         # TEST: Pick top 5 similar scores. Print all events. Print top 5 events.
         #similarity_scores = np.array(similarity_scores)

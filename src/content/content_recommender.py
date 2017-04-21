@@ -44,6 +44,12 @@ class ContentRecommender:
         for i in xrange(len(potential_events)):
             simscores[member_id][potential_events[i]] = similarity_scores[i]
 
+        #### Instead of Putting all similarity scores, only putting top scores and the events because of
+        #### memory constraint
+        # top_indices = similarity_scores.argsort()[:-6:-1]
+        # for i in top_indices:
+        #     simscores[member_id][potential_events[i]] = similarity_scores[i]
+
         # top_indices = similarity_scores.argsort()[:-6:-1]
         # top_5_recommended_events = []
         # for i in top_indices:
