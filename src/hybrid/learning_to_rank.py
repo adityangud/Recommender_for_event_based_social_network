@@ -12,5 +12,5 @@ class LearningToRank:
                 for feature in simscores_across_features:
                     hybrid_simscores[member][event] += simscores_across_features[feature][member][event]
 
-        args = sorted(hybrid_simscores['11173777'].items(), key=operator.itemgetter(1))[-6:-1]
-        print "Top 5 events recommended to user 11173777", args
+        args = sorted(hybrid_simscores['12563492'].items(), key=operator.itemgetter(1))[-6:-1]
+        print "Top 5 events recommended to user 12563492", args
