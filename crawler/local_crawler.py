@@ -166,7 +166,9 @@ def get_event_info():
         event_id.extend(list(event_data.event_id))
         location.extend(list(event_data.location_id))
         event_time.extend(list(event_data.time))
-        description.extend(list(event_data.description))
+        # WARNING WARNING WARNING
+        # NOTE: Desctiption and Fee Price columns are interchanged in the csv files
+        description.extend(list(event_data.fee_price))
 
     for i in xrange(len(event_id)):
         city = groups_city_dict[event_groups_dict[event_id[i]]]
