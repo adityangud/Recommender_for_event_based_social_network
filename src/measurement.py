@@ -29,4 +29,4 @@ def top_5_recommendation_measurement(top_events, all_events, member_id, feature)
     union = len(top_events) #5
     recommedation_accuracy = intersection / float(union) * 100.0
     accuracy_obj.update_average(recommedation_accuracy)
-    print "Recommendation accuracy for", feature , member_id, "is :", accuracy_obj.get_average(), "Percent"
+    # print "Recommendation accuracy for", feature , member_id, "is :", accuracy_obj.get_average(), "Percent"

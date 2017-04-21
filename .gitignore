@@ -1,3 +1,6 @@
 .idea/
 .DS_Store
 *.pyc
+crawler/cities/LCHICAGO/
+crawler/cities/LPHOENIX/
+crawler/cities/LSAN JOSE/

@@ -10,6 +10,11 @@ class TimeRecommender:
         self.days_of_the_week = {'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, \
                             'Friday': 5, 'Saturday': 6}
 
+    def get_test_event_vecs_with_time(self, info_repo, potential_events):
+        events_info = info_repo["events_info"]
+        test_events_vecs = np.array([self.get_time_vector(events_info[event_id]["time"]) for event_id in potential_events])
+        return test_events_vecs
+
     def add_time_vector(self, event_time, timevector):
         dotw = self.days_of_the_week[datetime.datetime.fromtimestamp(event_time/1000).strftime("%A")]
         hour = int(datetime.datetime.fromtimestamp(event_time/1000).strftime("%H"))
@@ -38,23 +43,25 @@ class TimeRecommender:
             self.training_vecs[user_id] = np.array([timevector])
 
     # Transform - form vectors for a user's past events. Sum these vectors to form user vector. Calculate similarity scores and rank events.
-    def test(self, member_id, potential_events, info_repo, simscores):
+    def test(self, member_id, potential_events, test_events_vecs, simscores):
         ## input : member_id, list_of_events
         ## output : [cosine similarity scores]
         member_vec = self.training_vecs[member_id]
-        events_info = info_repo["events_info"]
-        test_events_vecs = np.array([self.get_time_vector(events_info[event_id]["time"]) for event_id in potential_events])
         similarity_scores = cosine_similarity(member_vec, test_events_vecs).flatten()
         for i in xrange(len(potential_events)):
             simscores[member_id][potential_events[i]] = similarity_scores[i]
 
-        top_indices = similarity_scores.argsort()[:-5:-1]
-        top_5_recommended_events = []
-        for i in top_indices:
-           top_5_recommended_events.append(potential_events[i])
+        # top_indices = similarity_scores.argsort()[:-6:-1]
+        # for i in top_indices:
+        #     simscores[member_id][potential_events[i]] = similarity_scores[i]
 
-        top_5_recommendation_measurement(top_5_recommended_events, info_repo["members_events"][member_id],\
-                                         member_id, "time_recommender")
+        # top_indices = similarity_scores.argsort()[:-5:-1]
+        # top_5_recommended_events = []
+        # for i in top_indices:
+        #    top_5_recommended_events.append(potential_events[i])
+        #
+        # top_5_recommendation_measurement(top_5_recommended_events, info_repo["members_events"][member_id],\
+        #                                  member_id, "time_recommender")
         # TEST: Pick top 5 similar scores. Print all events. Print top 5 events.
         #args =  similarity_scores.argsort()[:-5:-1]
         #print args
