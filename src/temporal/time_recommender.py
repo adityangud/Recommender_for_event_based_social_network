@@ -3,7 +3,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from collections import defaultdict
 import datetime
-from src.measurement import top_5_recommendation_measurement
 
 class TimeRecommender:
     def __init__(self):

@@ -1,0 +1,105 @@
+Partition at timestamp  2013-06-27 19:00:00  are :
+Partitioned Repo retrieved for timestamp :  2013-06-27 19:00:00
+Starting Content Classifier
+Completed Content Classifier in  126.043437  seconds
+Starting Time Classifier
+Completed Time Classifier in  6.348836  seconds
+Starting Location Classifier
+Completed Location Classifier in  26.567913  seconds
+Starting Group Frequency Classifier
+Completed Group Frequency Classifier in  3.299184  seconds
+Recommendation accuracy for 2884706 is : 95.4954954955   and cumulative avg :  95.4954954955 Percent
+Recommendation accuracy for 35872672 is : 36.6890380313   and cumulative avg :  36.6890380313 Percent
+Recommendation accuracy for 6584953 is : 97.131147541   and cumulative avg :  97.131147541 Percent
+Recommendation accuracy for 9234469 is : 99.6138996139   and cumulative avg :  99.6138996139 Percent
+Recommendation accuracy for 5948547 is : 50.0312044934   and cumulative avg :  50.0312044934 Percent
+Partition at timestamp  2012-12-27 18:00:00  are :
+Partitioned Repo retrieved for timestamp :  2012-12-27 18:00:00
+Starting Content Classifier
+Completed Content Classifier in  98.526127  seconds
+Starting Time Classifier
+Completed Time Classifier in  4.717788  seconds
+Starting Location Classifier
+Completed Location Classifier in  18.964592  seconds
+Starting Group Frequency Classifier
+Completed Group Frequency Classifier in  0.325749  seconds
+Recommendation accuracy for 2884706 is : 22.8855721393   and cumulative avg :  59.1905338174 Percent
+Recommendation accuracy for 4445443 is : 67.3796791444   and cumulative avg :  67.3796791444 Percent
+Recommendation accuracy for 9234469 is : 4.23728813559   and cumulative avg :  51.9255938747 Percent
+Recommendation accuracy for 4898260 is : 82.6530612245   and cumulative avg :  82.6530612245 Percent
+Recommendation accuracy for 5948547 is : 53.1746031746   and cumulative avg :  51.602903834 Percent
+Partition at timestamp  2012-06-28 19:00:00  are :
+Partitioned Repo retrieved for timestamp :  2012-06-28 19:00:00
+Starting Content Classifier
+Completed Content Classifier in  70.69805  seconds
+Starting Time Classifier
+Completed Time Classifier in  3.99458  seconds
+Starting Location Classifier
+Completed Location Classifier in  14.52576  seconds
+Starting Group Frequency Classifier
+Completed Group Frequency Classifier in  0.259956  seconds
+Recommendation accuracy for 2884706 is : 35.7894736842   and cumulative avg :  51.3901804397 Percent
+Recommendation accuracy for 4576146 is : 82.183908046   and cumulative avg :  82.183908046 Percent
+Recommendation accuracy for 9234469 is : 0.0   and cumulative avg :  34.6170625832 Percent
+Recommendation accuracy for 4898260 is : 16.5714285714   and cumulative avg :  49.612244898 Percent
+Recommendation accuracy for 4445443 is : 17.4657534247   and cumulative avg :  42.4227162845 Percent
+Partition at timestamp  2011-12-29 18:00:00  are :
+Partitioned Repo retrieved for timestamp :  2011-12-29 18:00:00
+Starting Content Classifier
+Completed Content Classifier in  56.720742  seconds
+Starting Time Classifier
+Completed Time Classifier in  2.938631  seconds
+Starting Location Classifier
+Completed Location Classifier in  13.084435  seconds
+Starting Group Frequency Classifier
+Completed Group Frequency Classifier in  0.22386  seconds
+Recommendation accuracy for 2884706 is : 3.44827586207   and cumulative avg :  39.4047042953 Percent
+Recommendation accuracy for 4576146 is : 25.6637168142   and cumulative avg :  53.9238124301 Percent
+Recommendation accuracy for 4584030 is : 95.4954954955   and cumulative avg :  95.4954954955 Percent
+Recommendation accuracy for 4898260 is : 6.36363636364   and cumulative avg :  35.1960420532 Percent
+Recommendation accuracy for 4445443 is : 0.0   and cumulative avg :  28.2818108563 Percent
+Partition at timestamp  2011-06-30 19:00:00  are :
+Partitioned Repo retrieved for timestamp :  2011-06-30 19:00:00
+Starting Content Classifier
+Completed Content Classifier in  45.073184  seconds
+Starting Time Classifier
+Completed Time Classifier in  2.760023  seconds
+Starting Location Classifier
+Completed Location Classifier in  10.664235  seconds
+Starting Group Frequency Classifier
+Completed Group Frequency Classifier in  0.207964  seconds
+Recommendation accuracy for 2884706 is : 17.1428571429   and cumulative avg :  34.9523348648 Percent
+Recommendation accuracy for 4576146 is : 26.2711864407   and cumulative avg :  44.7062704336 Percent
+Recommendation accuracy for 4584030 is : 33.3333333333   and cumulative avg :  64.4144144144 Percent
+Recommendation accuracy for 4898260 is : 17.6744186047   and cumulative avg :  30.8156361911 Percent
+Recommendation accuracy for 4445443 is : 5.37974683544   and cumulative avg :  22.5562948511 Percent
+Partition at timestamp  2010-12-30 18:00:00  are :
+Partitioned Repo retrieved for timestamp :  2010-12-30 18:00:00
+Starting Content Classifier
+Completed Content Classifier in  36.719268  seconds
+Starting Time Classifier
+Completed Time Classifier in  2.227786  seconds
+Starting Location Classifier
+Completed Location Classifier in  10.105372  seconds
+Starting Group Frequency Classifier
+Completed Group Frequency Classifier in  0.183263  seconds
+Recommendation accuracy for 2884706 is : 9.83606557377   and cumulative avg :  30.766289983 Percent
+Recommendation accuracy for 4576146 is : 25.8196721311   and cumulative avg :  39.984620858 Percent
+Recommendation accuracy for 4584030 is : 25.8196721311   and cumulative avg :  51.54950032 Percent
+Recommendation accuracy for 4898260 is : 8.16326530612   and cumulative avg :  26.2851620141 Percent
+Recommendation accuracy for 4445443 is : 17.6282051282   and cumulative avg :  21.5706769065 Percent
+Partition at timestamp  2010-07-01 19:00:00  are :
+Partitioned Repo retrieved for timestamp :  2010-07-01 19:00:00
+Starting Content Classifier
+Completed Content Classifier in  31.562553  seconds
+Starting Time Classifier
+Completed Time Classifier in  2.433126  seconds
+Starting Location Classifier
+Completed Location Classifier in  8.713596  seconds
+Starting Group Frequency Classifier
+Completed Group Frequency Classifier in  0.146953  seconds
+Recommendation accuracy for 2884706 is : 5.53359683794   and cumulative avg :  27.1616195337 Percent
+Recommendation accuracy for 4445443 is : 16.4835164835   and cumulative avg :  20.722816836 Percent
+Recommendation accuracy for 4898260 is : 9.83606557377   and cumulative avg :  23.5436459407 Percent
+Recommendation accuracy for 9176316 is : 100.0   and cumulative avg :  100.0 Percent
+Recommendation accuracy for 11163 is : 100.0   and cumulative avg :  100.0 Percent

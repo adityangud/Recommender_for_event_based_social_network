@@ -17,10 +17,13 @@ class GrpFreqRecommender:
         similarity_scores = []
         for i in xrange(len(potential_events)):
             event_id = potential_events[i]
-            group_id = event_group[event_id]
-            group_event_ids = group_events[group_id]
-            user_attended_group_events = user_attended_event_ids.intersection(group_event_ids)
-            score = float(len(user_attended_group_events)) / len(user_attended_event_ids)
+            if event_id in event_group:
+                group_id = event_group[event_id]
+                group_event_ids = group_events[group_id]
+                user_attended_group_events = user_attended_event_ids.intersection(group_event_ids)
+                score = float(len(user_attended_group_events)) / len(user_attended_event_ids)
+            else:
+                score = 0.0
             similarity_scores.append(score)
             simscores[member_id][event_id] = score
 
