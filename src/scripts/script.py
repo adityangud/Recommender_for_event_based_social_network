@@ -42,13 +42,13 @@ def find_best_users(city, start_time, end_time, number_of_best_users):
     json_str = members_json_file.read()
     members_map = json.loads(json_str)
 
-    member_events_map = defaultdict(lambda :[])
+    member_events_map = defaultdict(lambda :0)
     for member in members_map:
         member_events_map[member] = len(get_rsvp_events_from_member_in_range(member, start_time, end_time, city))
 
 
-    return sorted(member_events_map, key=member_events_map.get, reverse=True)[:number_of_best_users]
-
+    best_user_list = sorted(member_events_map, key=member_events_map.get, reverse=True)[:number_of_best_users]
+    return best_user_list
 
 
 def main():
