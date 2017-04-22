@@ -27,10 +27,12 @@ def content_classifier(repo, timestamp, simscores, test_members):
 
     test_events_vec = contentRecommender.get_test_events_wth_description(repo, potential_events)
 
-    for member in test_members:
-    #TEST: Call test only for member_id 12563492
-        contentRecommender.test(member, potential_events, test_events_vec, simscores)
+    #TEST FOR BEST USERS
+    #for member in test_members:
+        #contentRecommender.test(member, potential_events, test_events_vec, simscores)
 
+    # TEST: Call test only for member_id 12563492
+    contentRecommender.test('12563492', potential_events, test_events_vec, simscores)
     # for member_id in repo['members_info']:
     #     contentRecommender.test(member_id, potential_events, test_events_vec, simscores)
 
@@ -55,6 +57,10 @@ def time_classifier(repo, timestamp, simscores, test_members):
 
     test_events_vec = timeRecommender.get_test_event_vecs_with_time(repo, potential_events)
 
+    #TEST FOR BEST USERS
+    #for member in test_members:
+    #    timeRecommender.test(member, potential_events, test_events_vec, simscores)
+
     #TEST: Call test only for member_id 12563492
     timeRecommender.test('12563492', potential_events, test_events_vec, simscores)
     # for member_id in repo['members_info']:
@@ -67,6 +73,10 @@ def loc_classifier(repo, timestamp, simscores, test_members):
     potential_events = filter_events_by_time_range(repo, list(repo['events_info'].keys()), timestamp,
                                                    timestamp + train_data_interval)
 
+    #TEST FOR BEST USERS
+    #for member in test_members:
+    #    locationRecommender.test(member, potential_events, repo, simscores)
+
     #TEST: Call test only for memeber_id 12563492
     locationRecommender.test('12563492', potential_events, repo, simscores)
     # for member_id in repo['members_info']:
@@ -78,6 +88,11 @@ def grp_freq_classifier(repo, timestamp, simscores, test_members):
     grp_freq_recommender.train(training_events_dict, repo)
     potential_events = filter_events_by_time_range(repo, list(repo['events_info'].keys()), timestamp,
                                                    timestamp + train_data_interval)
+
+    #TEST FOR BEST USERS
+    #for member in test_members:
+    #   grp_freq_recommender.test(member, potential_events, repo, simscores)
+
     #TEST: Call test only for memeber_id 12563492
     grp_freq_recommender.test('12563492', potential_events, repo, simscores)
     # for member_id in repo['members_info']:
