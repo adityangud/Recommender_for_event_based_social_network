@@ -8,33 +8,10 @@ from group_frequency.grp_freq_recommender import GrpFreqRecommender
 from hybrid.learning_to_rank import LearningToRank
 import datetime
 import time
-import numpy as np
+from src.measurement import recommendation_measurement
 
 train_data_interval = ((364 / 2) * 24 * 60 * 60)
 
-def content_classifier(repo, timestamp, simscores, test_members):
-    #Wrapper for content classification.
-    #call train and test for all member and
-    #events and print the results
-
-    training_events_dict = get_member_events_dict_in_range(repo, timestamp - train_data_interval, timestamp)
-
-    potential_events = filter_events_by_time_range(repo, list(repo['events_info'].keys()), timestamp,
-                                                   timestamp + train_data_interval)
-
-    contentRecommender = ContentRecommender()
-    contentRecommender.train(training_events_dict, repo)
-
-    test_events_vec = contentRecommender.get_test_events_wth_description(repo, potential_events)
-
-    #TEST FOR BEST USERS
-    #for member in test_members:
-        #contentRecommender.test(member, potential_events, test_events_vec, simscores)
-
-    # TEST: Call test only for member_id 12563492
-    contentRecommender.test('12563492', potential_events, test_events_vec, simscores)
-    # for member_id in repo['members_info']:
-    #     contentRecommender.test(member_id, potential_events, test_events_vec, simscores)
 
 def get_json_file(filename):
 
@@ -45,69 +22,94 @@ def get_json_file(filename):
     json_str = json_file.read()
     return json.loads(json_str)
 
-def time_classifier(repo, timestamp, simscores, test_members):
-
-    training_events_dict = get_member_events_dict_in_range(repo, timestamp - train_data_interval, timestamp)
-
-    timeRecommender = TimeRecommender()
-    timeRecommender.train(training_events_dict, repo)
-
-    potential_events = filter_events_by_time_range(repo, list(repo['events_info'].keys()), timestamp,
-                                                   timestamp + train_data_interval)
-
-    test_events_vec = timeRecommender.get_test_event_vecs_with_time(repo, potential_events)
-
-    #TEST FOR BEST USERS
-    #for member in test_members:
-    #    timeRecommender.test(member, potential_events, test_events_vec, simscores)
-
-    #TEST: Call test only for member_id 12563492
-    timeRecommender.test('12563492', potential_events, test_events_vec, simscores)
-    # for member_id in repo['members_info']:
-    #     timeRecommender.test(member_id, potential_events, test_events_vec, simscores)
-
-def loc_classifier(repo, timestamp, simscores, test_members):
-    training_events_dict = get_member_events_dict_in_range(repo, timestamp - train_data_interval, timestamp)
-    locationRecommender = LocationRecommender()
-    locationRecommender.train(training_events_dict, repo)
-    potential_events = filter_events_by_time_range(repo, list(repo['events_info'].keys()), timestamp,
-                                                   timestamp + train_data_interval)
-
-    #TEST FOR BEST USERS
-    #for member in test_members:
-    #    locationRecommender.test(member, potential_events, repo, simscores)
-
-    #TEST: Call test only for memeber_id 12563492
-    locationRecommender.test('12563492', potential_events, repo, simscores)
-    # for member_id in repo['members_info']:
-    #     locationRecommender.test(member_id, potential_events, repo, simscores)
-
-def grp_freq_classifier(repo, timestamp, simscores, test_members):
-    training_events_dict = get_member_events_dict_in_range(repo, timestamp - train_data_interval, timestamp)
-    grp_freq_recommender = GrpFreqRecommender()
-    grp_freq_recommender.train(training_events_dict, repo)
-    potential_events = filter_events_by_time_range(repo, list(repo['events_info'].keys()), timestamp,
-                                                   timestamp + train_data_interval)
-
-    #TEST FOR BEST USERS
-    #for member in test_members:
-    #   grp_freq_recommender.test(member, potential_events, repo, simscores)
-
-    #TEST: Call test only for memeber_id 12563492
-    grp_freq_recommender.test('12563492', potential_events, repo, simscores)
-    # for member_id in repo['members_info']:
-    #     grp_freq_recommender.test(member_id, potential_events, repo, simscores)
-
-def learning_to_rank(simscores_across_features, events, members, hybrid_simscores):
-    learningToRank = LearningToRank()
-
-    learningToRank.learning_to_rank(simscores_across_features, events, members, hybrid_simscores)
 
 def create_json_file(dictionary, filename):
     json_repr = json.dumps(dictionary)
     f = open(filename, "w+")
     f.write(json_repr)
     f.close()
+
+
+def content_classifier(training_repo, test_repo, timestamp, simscores, test_members):
+    #Wrapper for content classification.
+    #call train and test for all member and
+    #events and print the results
+
+    training_events_dict = training_repo['members_events']
+    #print training_events_dict['12563492']
+    potential_events = list(test_repo['events_info'].keys())
+
+    contentRecommender = ContentRecommender()
+    contentRecommender.train(training_events_dict, training_repo)
+    test_events_vec = contentRecommender.get_test_events_wth_description(test_repo, potential_events)
+
+    #TEST FOR BEST USERS
+    for member in test_members:
+         contentRecommender.test(member, potential_events, test_events_vec, simscores)
+
+    # TEST: Call test only for member_id 12563492
+    #contentRecommender.test('12563492', potential_events, test_events_vec, simscores)
+    # for member_id in train_repo['members_info']:
+    #     contentRecommender.test(member_id, potential_events, test_events_vec, simscores)
+
+
+
+def time_classifier(training_repo, test_repo, timestamp, simscores, test_members):
+
+    training_events_dict = training_repo['members_events']
+    potential_events = list(test_repo['events_info'].keys())
+
+    timeRecommender = TimeRecommender()
+    timeRecommender.train(training_events_dict, training_repo)
+    test_events_vec = timeRecommender.get_test_event_vecs_with_time(test_repo, potential_events)
+
+    #TEST FOR BEST USERS
+    for member in test_members:
+         timeRecommender.test(member, potential_events, test_events_vec, simscores)
+
+    #TEST: Call test only for member_id 12563492
+    #timeRecommender.test('12563492', potential_events, test_events_vec, simscores)
+
+    # for member_id in training_repo['members_info']:
+    #     timeRecommender.test(member_id, potential_events, test_events_vec, simscores)
+
+
+def loc_classifier(training_repo, test_repo, timestamp, simscores, test_members):
+    training_events_dict = training_repo['members_events']
+    potential_events = list(test_repo['events_info'].keys())
+
+    locationRecommender = LocationRecommender()
+    locationRecommender.train(training_events_dict, training_repo)
+
+    #TEST FOR BEST USERS
+    for member in test_members:
+        locationRecommender.test(member, potential_events, test_repo, simscores)
+
+    #TEST: Call test only for memeber_id 12563492
+    #locationRecommender.test('12563492', potential_events, test_repo, simscores)
+
+    # for member_id in training_repo['members_info']:
+    #     locationRecommender.test(member_id, potential_events, test_repo, simscores)
+
+
+def grp_freq_classifier(training_repo, test_repo, timestamp, simscores, test_members):
+    training_events_dict = training_repo['members_events']
+    potential_events = list(test_repo['events_info'].keys())
+
+    grp_freq_recommender = GrpFreqRecommender()
+    grp_freq_recommender.train(training_events_dict, training_repo)
+
+    #TEST: Call test only for memeber_id 12563492
+    #grp_freq_recommender.test('12563492', potential_events, training_repo, simscores)
+
+    for member in test_members:
+         grp_freq_recommender.test(member, potential_events, test_repo, simscores)
+
+
+def learning_to_rank_local(simscores_across_features, events, members, hybrid_simscores):
+    learningToRank = LearningToRank()
+    return learningToRank.learning_to_rank(simscores_across_features, events, members, hybrid_simscores)
+
 
 def main():
     parser = argparse.ArgumentParser(description='Run Event Recommender')
@@ -150,35 +152,37 @@ def main():
         for users in f:
             test_members.extend(users.split())
         f.close()
-
+        test_members = test_members[:5]
         print "Partition at timestamp ", datetime.datetime.fromtimestamp(t), " are : "
-        partitioned_repo = get_partitioned_repo(t, repo)
-
+        training_repo, test_repo = get_partitioned_repo_wrapper(t, repo)
         print "Partitioned Repo retrieved for timestamp : ", datetime.datetime.fromtimestamp(t)
 
+        training_members = set(training_repo['members_events'].keys())
+        test_members =  training_members.intersection(set(test_members))
         #Call content based classifer train and test functions from here. Pass the repo
         #as an argument to these functions.
         start = time.clock()
         print "Starting Content Classifier"
-        content_classifier(partitioned_repo, t, simscores_across_features['content_classifier'], test_members)
+        content_classifier(training_repo, test_repo, t, simscores_across_features['content_classifier'], test_members)
         print "Completed Content Classifier in ", time.clock() - start, " seconds"
 
         start = time.clock()
         print "Starting Time Classifier"
-        time_classifier(partitioned_repo, t, simscores_across_features['time_classifier'], test_members)
+        time_classifier(training_repo, test_repo, t, simscores_across_features['time_classifier'], test_members)
         print "Completed Time Classifier in ", time.clock() - start, " seconds"
 
         start = time.clock()
         print "Starting Location Classifier"
-        loc_classifier(partitioned_repo, t, simscores_across_features['location_classifier'], test_members)
+        loc_classifier(training_repo, test_repo, t, simscores_across_features['location_classifier'], test_members)
         print "Completed Location Classifier in ", time.clock() - start, " seconds"
 
         start = time.clock()
         print "Starting Group Frequency Classifier"
-        grp_freq_classifier(partitioned_repo, t, simscores_across_features['grp_freq_classifier'], test_members)
+        grp_freq_classifier(training_repo, test_repo, t, simscores_across_features['grp_freq_classifier'], test_members)
         print "Completed Group Frequency Classifier in ", time.clock() - start, " seconds"
 
-        learning_to_rank(simscores_across_features, partitioned_repo["events_info"].keys(), partitioned_repo["members_info"].keys(), hybrid_simscores)
+        test_members_recommended_events = learning_to_rank_local(simscores_across_features, test_repo["events_info"].keys(), test_members, hybrid_simscores)
+        recommendation_measurement(test_members_recommended_events, test_repo["members_events"], test_members)
 
 
 if __name__ == "__main__":

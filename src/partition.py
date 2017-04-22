@@ -5,10 +5,14 @@ train_data_interval = ((364 / 2) * 24 * 60 * 60)  # (6 months, or half a year)
 def get_timestamps(start_time, end_time):
     return [start_time + train_data_interval for start_time in range(start_time, end_time- 2 * train_data_interval, train_data_interval)]
 
-def get_partitioned_repo(timestamp, repo):
-
+def get_partitioned_repo_wrapper(timestamp, repo):
     start_time = timestamp - train_data_interval
     end_time = timestamp + train_data_interval
+    training_repo = get_partitioned_repo(repo, start_time, timestamp)
+    test_repo = get_partitioned_repo(repo, timestamp, end_time)
+    return training_repo, test_repo
+
+def get_partitioned_repo(repo, start_time, end_time):
 
     ## finding all events happened in training interval
     events_info = repo['events_info']
