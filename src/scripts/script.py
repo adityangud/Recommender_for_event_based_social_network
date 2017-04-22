@@ -60,8 +60,8 @@ def main():
             #print len(get_rsvp_events_from_member_in_range('4445443', 1372639655, 1388450855, 'LCHICAGO'))
             best_users = find_best_users('LCHICAGO', st, et, 400)
             f = open(city+"_best_users_" + str(st) +"_"+str(et) + ".txt", 'w')
-            for user in best_users:
-                f.write(user)
+            best_users = " ".join(best_users)
+            f.write(best_users)
             f.close()
 
 if __name__ == "__main__":

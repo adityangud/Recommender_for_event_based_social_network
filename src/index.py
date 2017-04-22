@@ -132,8 +132,8 @@ def main():
         end_time = t + train_data_interval
         test_members = []
         f = open("scripts/"+city + "_best_users_" + str(start_time) + "_" + str(end_time) + ".txt", "r")
-        for id in f:
-            test_members.append(id)
+        for users in f:
+            test_members.extend(users.split())
         f.close()
 
         print "Partition at timestamp ", datetime.datetime.fromtimestamp(t), " are : "
