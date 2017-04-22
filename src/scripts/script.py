@@ -1,6 +1,5 @@
 import json
 from collections import defaultdict
-import heapq
 
 global_member_events = defaultdict(lambda :[])
 global_events_info_map = defaultdict(lambda : defaultdict(lambda : defaultdict(lambda: 0.0)))
@@ -51,9 +50,19 @@ def find_best_users(city, start_time, end_time, number_of_best_users):
 
 
 def main():
-    initialize('LCHICAGO')
-    print len(get_rsvp_events_from_member_in_range('4445443', 1372639655, 1388450855, 'LCHICAGO'))
-    # print find_best_users('LCHICAGO', 1372639655, 1388450855, 10)
+    cities = ['LCHICAGO', 'LSAN JOSE', 'LPHOENIX']
+    start_times = [1372639655]
+    end_times = [1388450855]
+
+    for city in cities:
+        initialize(city)
+        for st, et in zip(start_times, end_times):
+            #print len(get_rsvp_events_from_member_in_range('4445443', 1372639655, 1388450855, 'LCHICAGO'))
+            best_users = find_best_users('LCHICAGO', st, et, 400)
+            f = open(city+"_best_users_" + str(st) +"_"+str(et) + ".txt", 'w')
+            for user in best_users:
+                f.write(user + "\n")
+            f.close()
 
 if __name__ == "__main__":
     main()
