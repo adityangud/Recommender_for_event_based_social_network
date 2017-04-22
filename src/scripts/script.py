@@ -51,8 +51,8 @@ def find_best_users(city, start_time, end_time, number_of_best_users):
 
 def main():
     cities = ['LCHICAGO', 'LSAN JOSE', 'LPHOENIX']
-    start_times = [1372639655]
-    end_times = [1388450855]
+    start_times = [1356652800]
+    end_times = [1388102400]
 
     for city in cities:
         initialize(city)
@@ -61,7 +61,7 @@ def main():
             best_users = find_best_users('LCHICAGO', st, et, 400)
             f = open(city+"_best_users_" + str(st) +"_"+str(et) + ".txt", 'w')
             for user in best_users:
-                f.write(user + "\n")
+                f.write(user)
             f.close()
 
 if __name__ == "__main__":

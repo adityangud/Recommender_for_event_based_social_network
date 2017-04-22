@@ -10,7 +10,9 @@ import datetime
 import time
 import numpy as np
 
-def content_classifier(repo, timestamp, simscores, feature_name):
+train_data_interval = ((364 / 2) * 24 * 60 * 60)
+
+def content_classifier(repo, timestamp, simscores, test_members):
     #Wrapper for content classification.
     #call train and test for all member and
     #events and print the results
@@ -25,8 +27,9 @@ def content_classifier(repo, timestamp, simscores, feature_name):
 
     test_events_vec = contentRecommender.get_test_events_wth_description(repo, potential_events)
 
+    for member in test_members:
     #TEST: Call test only for member_id 12563492
-    contentRecommender.test('12563492', potential_events, test_events_vec, simscores)
+        contentRecommender.test(member, potential_events, test_events_vec, simscores)
 
     # for member_id in repo['members_info']:
     #     contentRecommender.test(member_id, potential_events, test_events_vec, simscores)
@@ -40,7 +43,7 @@ def get_json_file(filename):
     json_str = json_file.read()
     return json.loads(json_str)
 
-def time_classifier(repo, timestamp, simscores):
+def time_classifier(repo, timestamp, simscores, test_members):
 
     training_events_dict = get_member_events_dict_in_range(repo, timestamp - train_data_interval, timestamp)
 
@@ -57,7 +60,7 @@ def time_classifier(repo, timestamp, simscores):
     # for member_id in repo['members_info']:
     #     timeRecommender.test(member_id, potential_events, test_events_vec, simscores)
 
-def loc_classifier(repo, timestamp, simscores):
+def loc_classifier(repo, timestamp, simscores, test_members):
     training_events_dict = get_member_events_dict_in_range(repo, timestamp - train_data_interval, timestamp)
     locationRecommender = LocationRecommender()
     locationRecommender.train(training_events_dict, repo)
@@ -69,7 +72,7 @@ def loc_classifier(repo, timestamp, simscores):
     # for member_id in repo['members_info']:
     #     locationRecommender.test(member_id, potential_events, repo, simscores)
 
-def grp_freq_classifier(repo, timestamp, simscores):
+def grp_freq_classifier(repo, timestamp, simscores, test_members):
     training_events_dict = get_member_events_dict_in_range(repo, timestamp - train_data_interval, timestamp)
     grp_freq_recommender = GrpFreqRecommender()
     grp_freq_recommender.train(training_events_dict, repo)
@@ -125,6 +128,14 @@ def main():
     timestamps = sorted(timestamps, reverse=True)
 
     for t in timestamps:
+        start_time = t - train_data_interval
+        end_time = t + train_data_interval
+        test_members = []
+        f = open("scripts/"+city + "_best_users_" + str(start_time) + "_" + str(end_time) + ".txt", "r")
+        for id in f:
+            test_members.append(id)
+        f.close()
+
         print "Partition at timestamp ", datetime.datetime.fromtimestamp(t), " are : "
         partitioned_repo = get_partitioned_repo(t, repo)
 
@@ -134,22 +145,22 @@ def main():
         #as an argument to these functions.
         start = time.clock()
         print "Starting Content Classifier"
-        content_classifier(partitioned_repo, t, simscores_across_features['content_classifier'], "content_classifier")
+        content_classifier(partitioned_repo, t, simscores_across_features['content_classifier'], test_members)
         print "Completed Content Classifier in ", time.clock() - start, " seconds"
 
         start = time.clock()
         print "Starting Time Classifier"
-        time_classifier(partitioned_repo, t, simscores_across_features['time_classifier'])
+        time_classifier(partitioned_repo, t, simscores_across_features['time_classifier'], test_members)
         print "Completed Time Classifier in ", time.clock() - start, " seconds"
 
         start = time.clock()
         print "Starting Location Classifier"
-        loc_classifier(partitioned_repo, t, simscores_across_features['location_classifier'])
+        loc_classifier(partitioned_repo, t, simscores_across_features['location_classifier'], test_members)
         print "Completed Location Classifier in ", time.clock() - start, " seconds"
 
         start = time.clock()
         print "Starting Group Frequency Classifier"
-        grp_freq_classifier(partitioned_repo, t, simscores_across_features['grp_freq_classifier'])
+        grp_freq_classifier(partitioned_repo, t, simscores_across_features['grp_freq_classifier'], test_members)
         print "Completed Group Frequency Classifier in ", time.clock() - start, " seconds"
 
         learning_to_rank(simscores_across_features, partitioned_repo["events_info"].keys(), partitioned_repo["members_info"].keys(), hybrid_simscores)
