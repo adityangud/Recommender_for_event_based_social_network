@@ -1,6 +1,8 @@
 import json
 from collections import defaultdict
+from src.partition import get_timestamps
 
+train_data_interval = ((364 / 2) * 24 * 60 * 60)
 global_member_events = defaultdict(lambda :[])
 global_events_info_map = defaultdict(lambda : defaultdict(lambda : defaultdict(lambda: 0.0)))
 
@@ -51,15 +53,18 @@ def find_best_users(city, start_time, end_time, number_of_best_users):
 
 def main():
     cities = ['LCHICAGO', 'LSAN JOSE', 'LPHOENIX']
-    start_times = [1356652800]
-    end_times = [1388102400]
+    start_time = 1262304000 # 1st Jan 2010
+    end_time = 1388534400 # 1st Jan 2014
+    timestamps = get_timestamps(start_time, end_time)
+    timestamps = sorted(timestamps, reverse=True)
 
     for city in cities:
         initialize(city)
-        for st, et in zip(start_times, end_times):
-            #print len(get_rsvp_events_from_member_in_range('4445443', 1372639655, 1388450855, 'LCHICAGO'))
-            best_users = find_best_users('LCHICAGO', st, et, 400)
-            f = open(city+"_best_users_" + str(st) +"_"+str(et) + ".txt", 'w')
+        for t in timestamps:
+            start_time = t - train_data_interval
+            end_time = t + train_data_interval
+            best_users = find_best_users(city, start_time, end_time, 400)
+            f = open(city+"_best_users_" + str(start_time) +"_"+str(end_time) + ".txt", 'w')
             best_users = " ".join(best_users)
             f.write(best_users)
             f.close()
