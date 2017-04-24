@@ -159,6 +159,7 @@ def main():
 
         training_members = set(training_repo['members_events'].keys())
         test_members =  training_members.intersection(set(test_members))
+        test_members = list(test_members)
         #Call content based classifer train and test functions from here. Pass the repo
         #as an argument to these functions.
         start = time.clock()
@@ -181,9 +182,12 @@ def main():
         grp_freq_classifier(training_repo, test_repo, t, simscores_across_features['grp_freq_classifier'], test_members)
         print "Completed Group Frequency Classifier in ", time.clock() - start, " seconds"
 
+
         test_members_recommended_events = learning_to_rank_local(simscores_across_features, test_repo["events_info"].keys(), test_members, hybrid_simscores)
         recommendation_measurement(test_members_recommended_events, test_repo["members_events"], test_members)
 
+        learningToRank = LearningToRank()
+        learningToRank.learning(simscores_across_features, test_repo["events_info"].keys(), test_repo["members_events"], test_members)
 
 if __name__ == "__main__":
     main()
