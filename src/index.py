@@ -144,7 +144,7 @@ def main():
     timestamps = get_timestamps(start_time, end_time)
     timestamps = sorted(timestamps, reverse=True)
 
-    f = open('temp_result.txt', 'a')
+    f_temp = open('temp_result.txt', 'a')
     for t in timestamps:
         start_time = t - train_data_interval
         end_time = t + train_data_interval
@@ -188,8 +188,8 @@ def main():
         recommendation_measurement(test_members_recommended_events, test_repo["members_events"], test_members)
 
         learningToRank = LearningToRank()
-        learningToRank.learning(simscores_across_features, test_repo["events_info"].keys(), test_repo["members_events"], test_members, f)
-    f.close()
+        learningToRank.learning(simscores_across_features, test_repo["events_info"].keys(), test_repo["members_events"], test_members, f_temp)
+    f_temp.close()
 
 if __name__ == "__main__":
     main()
