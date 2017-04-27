@@ -106,9 +106,9 @@ def grp_freq_classifier(training_repo, test_repo, timestamp, simscores, test_mem
          grp_freq_recommender.test(member, potential_events, test_repo, simscores)
 
 
-def learning_to_rank_local(simscores_across_features, events, members, hybrid_simscores):
+def learning_to_rank_local(simscores_across_features, potential_events, test_members, hybrid_simscores):
     learningToRank = LearningToRank()
-    return learningToRank.learning_to_rank(simscores_across_features, events, members, hybrid_simscores)
+    return learningToRank.learning_to_rank(simscores_across_features, potential_events, test_members, hybrid_simscores)
 
 
 def main():
@@ -144,6 +144,7 @@ def main():
     timestamps = get_timestamps(start_time, end_time)
     timestamps = sorted(timestamps, reverse=True)
 
+    f = open('temp_result.txt', 'a')
     for t in timestamps:
         start_time = t - train_data_interval
         end_time = t + train_data_interval
@@ -152,7 +153,7 @@ def main():
         for users in f:
             test_members.extend(users.split())
         f.close()
-        test_members = test_members[:5]
+        test_members = test_members[:50]
         print "Partition at timestamp ", datetime.datetime.fromtimestamp(t), " are : "
         training_repo, test_repo = get_partitioned_repo_wrapper(t, repo)
         print "Partitioned Repo retrieved for timestamp : ", datetime.datetime.fromtimestamp(t)
@@ -187,7 +188,8 @@ def main():
         recommendation_measurement(test_members_recommended_events, test_repo["members_events"], test_members)
 
         learningToRank = LearningToRank()
-        learningToRank.learning(simscores_across_features, test_repo["events_info"].keys(), test_repo["members_events"], test_members)
+        learningToRank.learning(simscores_across_features, test_repo["events_info"].keys(), test_repo["members_events"], test_members, f)
+    f.close()
 
 if __name__ == "__main__":
     main()
