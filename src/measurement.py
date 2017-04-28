@@ -1,6 +1,5 @@
 from collections import defaultdict
 member_feature_accuracy = defaultdict(lambda :None)
-from ranking import find_ranking
 
 class Accuracy:
     def __init__(self):
@@ -20,7 +19,6 @@ class Accuracy:
 #future events. This measures the running average accuracy of a given feature's
 #prediction for a given member_id across all the different partitions.
 def recommendation_measurement(test_members_sorted_events, all_members_rsvpd_events, test_members):
-    find_ranking(all_members_rsvpd_events)
     for member_id in test_members:
         accuracy_obj = member_feature_accuracy[member_id]
         if accuracy_obj == None:
