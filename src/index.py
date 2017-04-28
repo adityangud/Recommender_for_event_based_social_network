@@ -106,9 +106,9 @@ def grp_freq_classifier(training_repo, test_repo, timestamp, simscores, test_mem
          grp_freq_recommender.test(member, potential_events, test_repo, simscores)
 
 
-def learning_to_rank_local(simscores_across_features, events, members, hybrid_simscores):
+def learning_to_rank_local(simscores_across_features, potential_events, test_members, hybrid_simscores):
     learningToRank = LearningToRank()
-    return learningToRank.learning_to_rank(simscores_across_features, events, members, hybrid_simscores)
+    return learningToRank.learning_to_rank(simscores_across_features, potential_events, test_members, hybrid_simscores)
 
 
 def main():
@@ -144,6 +144,7 @@ def main():
     timestamps = get_timestamps(start_time, end_time)
     timestamps = sorted(timestamps, reverse=True)
 
+    f_temp = open('temp_result.txt', 'a')
     for t in timestamps:
         start_time = t - train_data_interval
         end_time = t + train_data_interval
@@ -152,13 +153,14 @@ def main():
         for users in f:
             test_members.extend(users.split())
         f.close()
-        test_members = test_members[:5]
+        test_members = test_members[:50]
         print "Partition at timestamp ", datetime.datetime.fromtimestamp(t), " are : "
         training_repo, test_repo = get_partitioned_repo_wrapper(t, repo)
         print "Partitioned Repo retrieved for timestamp : ", datetime.datetime.fromtimestamp(t)
 
         training_members = set(training_repo['members_events'].keys())
         test_members =  training_members.intersection(set(test_members))
+        test_members = list(test_members)
         #Call content based classifer train and test functions from here. Pass the repo
         #as an argument to these functions.
         start = time.clock()
@@ -181,9 +183,13 @@ def main():
         grp_freq_classifier(training_repo, test_repo, t, simscores_across_features['grp_freq_classifier'], test_members)
         print "Completed Group Frequency Classifier in ", time.clock() - start, " seconds"
 
+
         test_members_recommended_events = learning_to_rank_local(simscores_across_features, test_repo["events_info"].keys(), test_members, hybrid_simscores)
         recommendation_measurement(test_members_recommended_events, test_repo["members_events"], test_members)
 
+        learningToRank = LearningToRank()
+        learningToRank.learning(simscores_across_features, test_repo["events_info"].keys(), test_repo["members_events"], test_members, f_temp)
+    f_temp.close()
 
 if __name__ == "__main__":
     main()
