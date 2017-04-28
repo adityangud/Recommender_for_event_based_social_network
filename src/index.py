@@ -104,6 +104,14 @@ def grp_freq_classifier(training_repo, test_repo, timestamp, simscores, test_mem
     for member in test_members:
          grp_freq_recommender.test(member, potential_events, test_repo, simscores)
 
+def remove_new_users(test_repo, test_members):
+    new_test_members = []
+    member_events_repo_local = test_repo["members_events"]
+    for i in xrange(len(test_members)):
+        if len(member_events_repo_local[test_members[i]]) == 0:
+            new_test_members.append(test_members[i])
+    return new_test_members
+
 def main():
     parser = argparse.ArgumentParser(description='Run Event Recommender')
     parser.add_argument('--city', help='Enter the city name')
@@ -118,7 +126,7 @@ def main():
                                                             "../crawler/cities/" + city + "/group_events.json")
     events_info = load_events("../crawler/cities/" + city + "/events_info.json")
     members_info = load_members("../crawler/cities/" + city + "/members_info.json")
-    member_events, event_members = load_rsvps("../crawler/cities/" + city + "/rsvp_events.json")
+    member_events = load_rsvps("../crawler/cities/" + city + "/rsvp_events.json")
 
     repo = dict()
     repo['group_events'] = group_events
@@ -127,7 +135,6 @@ def main():
     repo['members_info'] = members_info
     repo['members_events'] = member_events
     repo['event_group'] = event_group
-    repo['event_members'] = event_members
 
     #simscores_across_features is a dictionary to store similarity score obtained for each feature
     #for each member and for a given event. For example in case of content classifer we will
@@ -158,6 +165,8 @@ def main():
         print "Partition at timestamp ", datetime.datetime.fromtimestamp(t), " are : "
         training_repo, test_repo = get_partitioned_repo_wrapper(t, repo)
         print "Partitioned Repo retrieved for timestamp : ", datetime.datetime.fromtimestamp(t)
+        # Get new users - NEW USERS ARE NOT REMVOED FROM test_members
+        new_test_members = remove_new_users(test_repo, test_members)
 
         training_members = set(training_repo['members_events'].keys())
         test_members =  training_members.intersection(set(test_members))
