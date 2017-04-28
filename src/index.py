@@ -8,7 +8,6 @@ from group_frequency.grp_freq_recommender import GrpFreqRecommender
 from hybrid.learning_to_rank import LearningToRank
 import datetime
 import time
-from src.measurement import recommendation_measurement
 
 train_data_interval = ((364 / 2) * 24 * 60 * 60)
 
@@ -105,23 +104,21 @@ def grp_freq_classifier(training_repo, test_repo, timestamp, simscores, test_mem
     for member in test_members:
          grp_freq_recommender.test(member, potential_events, test_repo, simscores)
 
-
-def learning_to_rank_local(simscores_across_features, potential_events, test_members, hybrid_simscores):
-    learningToRank = LearningToRank()
-    return learningToRank.learning_to_rank(simscores_across_features, potential_events, test_members, hybrid_simscores)
-
-
 def main():
     parser = argparse.ArgumentParser(description='Run Event Recommender')
     parser.add_argument('--city', help='Enter the city name')
+    parser.add_argument('--algo', nargs='+', help='Enter the classification Algorithm list(svm|mlp|nb|rf)')
+    parser.add_argument('--members', help='Enter the number of members on which to run the evaluation')
     args = parser.parse_args()
 
     city = args.city
+    algolist = args.algo
+    number_of_members = int(args.members)
     group_members, group_events, event_group = load_groups("../crawler/cities/" + city + "/group_members.json",
                                                             "../crawler/cities/" + city + "/group_events.json")
     events_info = load_events("../crawler/cities/" + city + "/events_info.json")
     members_info = load_members("../crawler/cities/" + city + "/members_info.json")
-    member_events = load_rsvps("../crawler/cities/" + city + "/rsvp_events.json")
+    member_events, event_members = load_rsvps("../crawler/cities/" + city + "/rsvp_events.json")
 
     repo = dict()
     repo['group_events'] = group_events
@@ -130,6 +127,7 @@ def main():
     repo['members_info'] = members_info
     repo['members_events'] = member_events
     repo['event_group'] = event_group
+    repo['event_members'] = event_members
 
     #simscores_across_features is a dictionary to store similarity score obtained for each feature
     #for each member and for a given event. For example in case of content classifer we will
@@ -143,8 +141,11 @@ def main():
     end_time = 1388534400 # 1st Jan 2014
     timestamps = get_timestamps(start_time, end_time)
     timestamps = sorted(timestamps, reverse=True)
+    count_partition = 1
 
-    f_temp = open('temp_result.txt', 'a')
+    f_temp = open('temp_result.txt', 'w+')
+    f_temp.write("Using classification algorithms : " + str(algolist) + " and number of members as : " + str(number_of_members) + "\n")
+
     for t in timestamps:
         start_time = t - train_data_interval
         end_time = t + train_data_interval
@@ -153,7 +154,7 @@ def main():
         for users in f:
             test_members.extend(users.split())
         f.close()
-        test_members = test_members[:50]
+        test_members = test_members[:number_of_members]
         print "Partition at timestamp ", datetime.datetime.fromtimestamp(t), " are : "
         training_repo, test_repo = get_partitioned_repo_wrapper(t, repo)
         print "Partitioned Repo retrieved for timestamp : ", datetime.datetime.fromtimestamp(t)
@@ -183,12 +184,11 @@ def main():
         grp_freq_classifier(training_repo, test_repo, t, simscores_across_features['grp_freq_classifier'], test_members)
         print "Completed Group Frequency Classifier in ", time.clock() - start, " seconds"
 
-
-        test_members_recommended_events = learning_to_rank_local(simscores_across_features, test_repo["events_info"].keys(), test_members, hybrid_simscores)
-        recommendation_measurement(test_members_recommended_events, test_repo["members_events"], test_members)
-
+        f_temp.write("============== Starting classification for partition : " +  str(count_partition) + " ===================\n")
         learningToRank = LearningToRank()
-        learningToRank.learning(simscores_across_features, test_repo["events_info"].keys(), test_repo["members_events"], test_members, f_temp)
+        learningToRank.learning(simscores_across_features, test_repo["events_info"].keys(), test_repo["members_events"], test_members, f_temp, algolist, number_of_members)
+        f_temp.write("============== Starting classification for partition : " +  str(count_partition) + " ===================\n")
+        count_partition += 1
     f_temp.close()
 
 if __name__ == "__main__":
