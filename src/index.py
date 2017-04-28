@@ -106,7 +106,7 @@ def grp_freq_classifier(training_repo, test_repo, timestamp, simscores, test_mem
 
 def remove_new_users(test_repo, test_members):
     new_test_members = []
-    member_events_repo_local = test_repo["member_events"]
+    member_events_repo_local = test_repo["members_events"]
     for i in xrange(len(test_members)):
         if len(member_events_repo_local[test_members[i]]) == 0:
             new_test_members.append(test_members[i])
