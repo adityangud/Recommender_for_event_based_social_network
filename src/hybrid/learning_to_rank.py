@@ -53,7 +53,7 @@ class LearningToRank:
         final_test_y = np.array(test_y)
         classification_algo = LinearSVC()
         if 'svm' in algolist:
-            classification_algo = MLPClassifier()
+            classification_algo = LinearSVC()
             classification_algo.fit(final_training_data_features_list, final_train_y)
             predictions = classification_algo.predict(final_test_data_features_list)
             prfs = precision_recall_fscore_support(final_test_y, predictions, labels=[0, 1])
