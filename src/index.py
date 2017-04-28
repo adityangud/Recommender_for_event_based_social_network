@@ -166,7 +166,7 @@ def main():
         training_repo, test_repo = get_partitioned_repo_wrapper(t, repo)
         print "Partitioned Repo retrieved for timestamp : ", datetime.datetime.fromtimestamp(t)
         # Get new users - NEW USERS ARE NOT REMVOED FROM test_members
-        new_test_members = remove_new_users(test_repo. test_members)
+        new_test_members = remove_new_users(test_repo, test_members)
 
         training_members = set(training_repo['members_events'].keys())
         test_members =  training_members.intersection(set(test_members))
