@@ -97,8 +97,14 @@ def check_and_run_local_crawler():
     os.system("python local_crawler.py")
     os.chdir("../src")
 
+def run_script(number_of_members):
+    os.chdir("scripts")
+    os.system("python script.py --number " + str(number_of_members))
+    os.chdir("..")
+
 def main():
     check_and_run_local_crawler()
+
     parser = argparse.ArgumentParser(description='Run Event Recommender')
     parser.add_argument('--city', help='Enter the city name')
     parser.add_argument('--algo', nargs='+', help='Enter the classification Algorithm list(svm|mlp|nb|rf)')
@@ -108,6 +114,10 @@ def main():
     city = args.city
     algolist = args.algo
     number_of_members = int(args.members)
+    print "Building best user database ..."
+    run_script(number_of_members)
+    print "Best users extracted."
+
     group_members, group_events, event_group = load_groups("../crawler/cities/" + city + "/group_members.json",
                                                             "../crawler/cities/" + city + "/group_events.json")
     events_info = load_events("../crawler/cities/" + city + "/events_info.json")
