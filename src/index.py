@@ -87,7 +87,18 @@ def grp_freq_classifier(training_repo, test_repo, timestamp, simscores, test_mem
          grp_freq_recommender.test(member, potential_events, test_repo, simscores)
 
 
+def check_and_run_local_crawler():
+    if os.path.isdir("../crawler/cities/LCHICAGO") and os.path.isdir("../crawler/cities/LSAN JOSE")\
+            and os.path.isdir("../crawler/cities/LPHOENIX"):
+        if len(os.listdir("../crawler/cities/LCHICAGO")) >= 5 and len(os.listdir("../crawler/cities/LSAN JOSE")) >= 5\
+                and len(os.listdir("../crawler/cities/LPHOENIX")) >= 5:
+            return
+    os.chdir("../crawler")
+    os.system("python local_crawler.py")
+    os.chdir("../src")
+
 def main():
+    check_and_run_local_crawler()
     parser = argparse.ArgumentParser(description='Run Event Recommender')
     parser.add_argument('--city', help='Enter the city name')
     parser.add_argument('--algo', nargs='+', help='Enter the classification Algorithm list(svm|mlp|nb|rf)')

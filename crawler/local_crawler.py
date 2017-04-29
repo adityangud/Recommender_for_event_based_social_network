@@ -2,6 +2,7 @@ from collections import defaultdict
 import pandas as pd
 import json
 import logging
+import os
 
 logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=logging.INFO)
 
@@ -83,6 +84,8 @@ def get_events_from_groups():
         group_events_dict[groups_city_dict[str(group_ids[i])]][str(group_ids[i])].append(str(event_ids[i]))
         event_groups_dict[str(event_ids[i])] = str(group_ids[i])
     for city in group_events_dict:
+        if not os.path.isdir("cities/L"+city):
+            os.makedirs("cities/L"+city)
         create_json_file(group_events_dict[city], "cities/"+"L"+city+"/group_events.json")
 
 def get_members_from_groups():
@@ -97,6 +100,8 @@ def get_members_from_groups():
         member_groups_dict[str(member_ids[i])] = str(group_ids[i])
 
     for city in group_members_dict:
+        if not os.path.isdir("cities/L"+city):
+            os.makedirs("cities/L"+city)
         create_json_file(group_members_dict[city], "cities/"+"L"+city+"/group_members.json")
 
 def get_rsvp_from_events():
@@ -117,6 +122,8 @@ def get_rsvp_from_events():
             city = groups_city_dict[event_groups_dict[str(event_list[i])]]
             rsvp_event_members_dict[city][str(event_list[i])].append(str(member_list[i]))
     for city in rsvp_event_members_dict:
+        if not os.path.isdir("cities/L"+city):
+            os.makedirs("cities/L"+city)
         create_json_file(rsvp_event_members_dict[city], "cities/"+"L"+city+"/rsvp_events.json")
 
 def get_member_info():
@@ -137,6 +144,8 @@ def get_member_info():
         members_info_dict[city][str(member_id[i])]["lat"] = float(lat[i])
         members_info_dict[city][str(member_id[i])]["lon"] = float(long[i])
     for city in members_info_dict:
+        if not os.path.isdir("cities/L"+city):
+            os.makedirs("cities/L"+city)
         create_json_file(members_info_dict[city], "cities/" + "L" + city + "/members_info.json")
 
 def get_event_info():
@@ -190,6 +199,8 @@ def get_event_info():
         events_info_dict[city][event_id[i]]["lon"] = float(longitude)
 
     for city in events_info_dict:
+        if not os.path.isdir("cities/L"+city):
+            os.makedirs("cities/L"+city)
         create_json_file(events_info_dict[city], "cities/" + "L" + city + "/events_info.json")
 
 
