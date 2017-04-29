@@ -104,6 +104,7 @@ def grp_freq_classifier(training_repo, test_repo, timestamp, simscores, test_mem
     for member in test_members:
          grp_freq_recommender.test(member, potential_events, test_repo, simscores)
 
+
 def main():
     parser = argparse.ArgumentParser(description='Run Event Recommender')
     parser.add_argument('--city', help='Enter the city name')
