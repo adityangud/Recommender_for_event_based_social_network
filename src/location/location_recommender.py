@@ -11,15 +11,10 @@ class LocationRecommender:
     def train(self, training_events_dict, info_repo):
         ## input : dict([user, list of event ids])
         events_info = info_repo["events_info"]
-        members_info = info_repo["members_info"]
         self.training_vecs = {}
         for user_id in training_events_dict:
             lat_list = []
             lon_list = []
-            user_lat = members_info[user_id]["lat"]
-            user_lon = members_info[user_id]["lon"]
-            lat_list.append(user_lat)
-            lon_list.append(user_lon)
             for event_id in training_events_dict[user_id]:
                 lat = events_info[event_id]["lat"]
                 lon = events_info[event_id]["lon"]
