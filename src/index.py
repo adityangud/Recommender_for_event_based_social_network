@@ -186,7 +186,7 @@ def main():
 
         f_temp.write("============== Starting classification for partition : " +  str(count_partition) + " ===================\n")
         learningToRank = LearningToRank()
-        learningToRank.learning(simscores_across_features, test_repo["events_info"].keys(), test_repo["members_events"], test_members, f_temp, algolist, number_of_members)
+        learningToRank.learning(simscores_across_features, test_repo["events_info"].keys(), test_repo["members_events"], test_members, f_temp, algolist, number_of_members, count_partition)
         f_temp.write("============== Starting classification for partition : " +  str(count_partition) + " ===================\n")
         count_partition += 1
     f_temp.close()
