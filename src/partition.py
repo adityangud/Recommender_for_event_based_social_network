@@ -18,10 +18,6 @@ def get_partitioned_repo(repo, start_time, end_time):
     events_info = repo['events_info']
     events_info_in_range = filter_events_info(events_info, start_time, end_time)
 
-    ## filtering event_members dict
-    event_members = repo['event_members']
-    event_members_in_range = dict((key, value) for key, value in event_members.iteritems() if key in events_info_in_range.keys())
-
     ## finding member info of all those who rsvp to above training_events
     member_events_in_range = dict()
     member_events = repo['members_events']
@@ -54,7 +50,7 @@ def get_partitioned_repo(repo, start_time, end_time):
     for member in member_events_in_range:
         member_info_in_range[member] = members_info[member]
 
-    return {'events_info':events_info_in_range, 'members_events': member_events_in_range, 'members_info': member_info_in_range, 'group_events': group_events_in_range, 'event_group': event_group_in_range, 'event_members': event_members_in_range}
+    return {'events_info':events_info_in_range, 'members_events': member_events_in_range, 'members_info': member_info_in_range, 'group_events': group_events_in_range, 'event_group': event_group_in_range}
 
 def get_member_events_dict_in_range(repo, start_time, end_time):
     member_events = repo['members_events']
