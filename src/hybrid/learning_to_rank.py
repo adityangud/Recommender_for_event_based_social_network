@@ -68,6 +68,7 @@ class LearningToRank:
 
             predictions = classifier.predict(final_test_data_features_list)
             prfs = precision_recall_fscore_support(final_test_y, predictions, labels=[0, 1])
+            print "SVM -> Precision : " + str(prfs[0][1]) + " Recall : " + str(prfs[1][1]) + " F-measure : " + str(prfs[2][1])
             f.write(
                 "SVM -> Precision : " + str(prfs[0][1]) + " Recall : " + str(prfs[1][1]) + " F-measure : " + str(prfs[2][1]) + "\n")
             f.flush()
@@ -76,6 +77,7 @@ class LearningToRank:
             classifier.fit(final_training_data_features_list, final_train_y)
             predictions = classifier.predict(final_test_data_features_list)
             prfs = precision_recall_fscore_support(final_test_y, predictions, labels=[0, 1])
+            print "MLP -> Precision : " + str(prfs[0][1]) + " Recall : " + str(prfs[1][1]) + " F-measure : " + str(prfs[2][1])
             f.write(
                 "MLP -> Precision : " + str(prfs[0][1]) + " Recall : " + str(prfs[1][1]) + " F-measure : " + str(prfs[2][1]) + "\n")
             f.flush()
@@ -84,6 +86,7 @@ class LearningToRank:
             classifier.fit(final_training_data_features_list, final_train_y)
             predictions = classifier.predict(final_test_data_features_list)
             prfs = precision_recall_fscore_support(final_test_y, predictions, labels=[0, 1])
+            print "NB -> Precision : " + str(prfs[0][1]) + " Recall : " + str(prfs[1][1]) + " F-measure : " + str(prfs[2][1])
             f.write(
                 "NB -> Precision : " + str(prfs[0][1]) + " Recall : " + str(prfs[1][1]) + " F-measure : " + str(prfs[2][1]) + "\n")
             f.flush()
@@ -100,6 +103,7 @@ class LearningToRank:
 
             predictions = classifier.predict(final_test_data_features_list)
             prfs = precision_recall_fscore_support(final_test_y, predictions, labels=[0, 1])
+            print "RF -> Precision : " + str(prfs[0][1]) + " Recall : " + str(prfs[1][1]) + " F-measure : " + str(prfs[2][1])
             f.write(
                 "RF -> Precision : " + str(prfs[0][1]) + " Recall : " + str(prfs[1][1]) + " F-measure : " + str(prfs[2][1]) + "\n")
             f.flush()
