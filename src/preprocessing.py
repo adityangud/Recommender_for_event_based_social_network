@@ -27,5 +27,5 @@ def load_rsvps(rsvps_file):
         member_ids = event_rsvps[event]
         for member in member_ids:
             member_events[member].append(event)
-    return member_events, event_rsvps
+    return member_events
 
