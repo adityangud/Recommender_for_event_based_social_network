@@ -11,24 +11,6 @@ import time
 
 train_data_interval = ((364 / 2) * 24 * 60 * 60)
 
-
-def get_json_file(filename):
-
-    if not os.path.exists(filename):
-        return {}
-
-    json_file = open(filename)
-    json_str = json_file.read()
-    return json.loads(json_str)
-
-
-def create_json_file(dictionary, filename):
-    json_repr = json.dumps(dictionary)
-    f = open(filename, "w+")
-    f.write(json_repr)
-    f.close()
-
-
 def content_classifier(training_repo, test_repo, timestamp, simscores, test_members):
     #Wrapper for content classification.
     #call train and test for all member and
@@ -185,9 +167,11 @@ def main():
         print "Completed Group Frequency Classifier in ", time.clock() - start, " seconds"
 
         f_temp.write("============== Starting classification for partition : " +  str(count_partition) + " ===================\n")
+        print "============== Starting classification for partition : " +  str(count_partition) + " ==================="
         learningToRank = LearningToRank()
         learningToRank.learning(simscores_across_features, test_repo["events_info"].keys(), test_repo["members_events"], test_members, f_temp, algolist, number_of_members, count_partition)
-        f_temp.write("============== Starting classification for partition : " +  str(count_partition) + " ===================\n")
+        f_temp.write("============== Completed classification for partition : " +  str(count_partition) + " ===================\n")
+        print "============== Completed classification for partition : " + str(count_partition) + " ==================="
         count_partition += 1
     f_temp.close()
 
