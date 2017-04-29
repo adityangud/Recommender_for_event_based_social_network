@@ -1,6 +1,7 @@
 import json
 from collections import defaultdict
 from src.partition import get_timestamps
+import argparse
 
 train_data_interval = ((364 / 2) * 24 * 60 * 60)
 global_member_events = defaultdict(lambda :[])
@@ -52,6 +53,10 @@ def find_best_users(city, start_time, end_time, number_of_best_users):
 
 
 def main():
+    parser = argparse.ArgumentParser(description='Run script')
+    parser.add_argument('--number', help='Number of best users')
+    args = parser.parse_args()
+    number_of_users = int(args.number)
     cities = ['LCHICAGO', 'LSAN JOSE', 'LPHOENIX']
     start_time = 1262304000 # 1st Jan 2010
     end_time = 1388534400 # 1st Jan 2014
@@ -63,7 +68,7 @@ def main():
         for t in timestamps:
             start_time = t - train_data_interval
             end_time = t + train_data_interval
-            best_users = find_best_users(city, start_time, end_time, 400)
+            best_users = find_best_users(city, start_time, end_time, number_of_users)
             f = open(city+"_best_users_" + str(start_time) +"_"+str(end_time) + ".txt", 'w')
             best_users = " ".join(best_users)
             f.write(best_users)
