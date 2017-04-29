@@ -1,4 +1,5 @@
 import time
+from collections import defaultdict
 
 train_data_interval = ((364 / 2) * 24 * 60 * 60)  # (6 months, or half a year)
 
@@ -50,7 +51,7 @@ def get_partitioned_repo(repo, start_time, end_time):
     for member in member_events_in_range:
         member_info_in_range[member] = members_info[member]
 
-    return {'events_info':events_info_in_range, 'members_events': member_events_in_range, 'members_info': member_info_in_range, 'group_events': group_events_in_range, 'event_group': event_group_in_range}
+    return {'events_info':events_info_in_range, 'members_events': defaultdict(lambda :[], member_events_in_range), 'members_info': member_info_in_range, 'group_events': group_events_in_range, 'event_group': event_group_in_range}
 
 def get_member_events_dict_in_range(repo, start_time, end_time):
     member_events = repo['members_events']
