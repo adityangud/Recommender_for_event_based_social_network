@@ -119,7 +119,7 @@ def main():
                                                             "../crawler/cities/" + city + "/group_events.json")
     events_info = load_events("../crawler/cities/" + city + "/events_info.json")
     members_info = load_members("../crawler/cities/" + city + "/members_info.json")
-    member_events, event_members = load_rsvps("../crawler/cities/" + city + "/rsvp_events.json")
+    member_events = load_rsvps("../crawler/cities/" + city + "/rsvp_events.json")
 
     repo = dict()
     repo['group_events'] = group_events
@@ -128,7 +128,6 @@ def main():
     repo['members_info'] = members_info
     repo['members_events'] = member_events
     repo['event_group'] = event_group
-    repo['event_members'] = event_members
 
     #simscores_across_features is a dictionary to store similarity score obtained for each feature
     #for each member and for a given event. For example in case of content classifer we will
