@@ -17,13 +17,14 @@ class TimeRecommender:
     def add_time_vector(self, event_time, timevector):
         dotw = self.days_of_the_week[datetime.datetime.fromtimestamp(event_time/1000).strftime("%A")]
         hour = int(datetime.datetime.fromtimestamp(event_time/1000).strftime("%H"))
-        timevector[dotw * 24 + hour] += 1
+        ## Dividing each day into 4 parts.
+        timevector[dotw * 4 + hour/6] += 1
 
     def get_time_vector(self, event_time):
         dotw = self.days_of_the_week[datetime.datetime.fromtimestamp(event_time/1000).strftime("%A")]
         hour = int(datetime.datetime.fromtimestamp(event_time/1000).strftime("%H"))
-        vec = [0 for i in xrange(24*7)]
-        vec[dotw * 24 + hour] = 1
+        vec = [0 for i in xrange(4*7)]
+        vec[dotw * 4 + hour/6] = 1
         return vec
 
     # TODO - Ideas for summing (direct sum, weighted sum(timed, event_importance)).
@@ -36,7 +37,7 @@ class TimeRecommender:
         # print "Training events ", training_events_dict['11173777']
 
         for user_id in training_events_dict:
-            timevector = [0 for x in xrange(24 * 7)]
+            timevector = [0 for x in xrange(4 * 7)]
             for event_id in training_events_dict[user_id]:
                 self.add_time_vector(events_info[event_id]["time"], timevector)
             self.training_vecs[user_id] = np.array([timevector])
