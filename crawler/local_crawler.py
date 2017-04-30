@@ -10,7 +10,7 @@ default_loc = {
     'CHICAGO' :
         {
             'lat':41.8781,
-            'lon':87.6298
+            'lon':-87.6298
         },
     'PHOENIX' :
         {
