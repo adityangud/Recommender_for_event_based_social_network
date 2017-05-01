@@ -91,7 +91,7 @@ class LearningToRank:
                 "NB -> Precision : " + str(prfs[0][1]) + " Recall : " + str(prfs[1][1]) + " F-measure : " + str(prfs[2][1]) + "\n")
             f.flush()
         if 'rf' in algolist:
-            classifier = RandomForestClassifier(n_estimators=50, n_jobs=-1)
+            classifier = RandomForestClassifier(n_estimators=50, n_jobs=-1, random_state=15325)
             classifier.fit(final_training_data_features_list, final_train_y)
 
             ## Finding important features
