@@ -18,7 +18,7 @@ Each folder corresponds to a city and contains five files.
 
 ## Video ##
 
-https://goo.gl/2CE6Gv
+https://youtu.be/f95jHCRUzkg
 
 ## How to run Jupyter Notebook ##
 Open the Jupyter Notebook and run all the code sequentially. 
