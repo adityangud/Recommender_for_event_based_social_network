@@ -6,12 +6,12 @@ It is of utmost importance in today's world that an event based social network u
 
 Hence, we are using the context knowledge to handle the cold start problem. Context knowledge can include temporal preferences, the set of groups the user can join, the users' geographic preferences and textual content of events. More specifically, we have used Social Aware, Content Aware, Location Aware, and Time Aware as features of the algorithm. Based on these we apply a Learning To Rank algorithms to obtain recommendations.
 
-To evaluate our data, we have divided the dataset into two timelines. The first timeline will be used to train the model and the second dataset has been used to test on this data. The prediction have been compared to the actual data using Precision and Recall.
+To evaluate our data, we have divided the dataset into two timelines. The first timeline has been used to train the model and the second dataset has been used to test on this data. The predictions have been compared to the actual data using Precision and Recall.
 
 ## DataSet ##
-We used meetup data for 3 cities, namely, Chicago, Phoenix, and San Jose.
+We used meetup.com data for 3 cities, namely, Chicago, Phoenix, and San Jose.
 
-Data is present at following link:-
+Data is present here :-
 https://goo.gl/ThgVtY
 
 Each folder corresponds to a city and contains five files.
@@ -20,8 +20,9 @@ Each folder corresponds to a city and contains five files.
 
 https://youtu.be/f95jHCRUzkg
 
-## How to run Jupyter Notebook ##
+## How to run the Jupyter Notebook ##
 Open the Jupyter Notebook and run all the code sequentially. 
+
 Note: Please do not run this code outside the current directory. The code in this notebook calls some python code that are present in the subdirectories. 
 
 ## Dependencies to be installed ##
@@ -56,16 +57,16 @@ city_name can be "LSAN JOSE", "LPHOENIX" or "LCHICAGO"
 This project is only python2.7 compatible.
 
 ## Website for Data Visualization ##
-Website for data visualization is made which helped us a lot while writing the recommender.
+Website for data visualization has been made which helped us a lot while writing the recommender.
 
 http://enigmatic-earth-94392.herokuapp.com
 
 Some of the features on it are :-
 Given a user id, one can get the details of the user.
 Given a event id, one can get the details of the event.
-Also, one interesting feature made is one can see all events attended by user on Google maps.
+Also, one interesting feature that has been made is that one can see all events attended by user on Google maps.
 
-## Paper that we used reference ##
+## Paper that we used as a reference ##
 http://dl.acm.org/citation.cfm?id=2800187
 
-Special thanks to authors of this paper who provided us the dataset and such an awesome model.
+Special thanks to authors of this paper who provided us with the dataset and such an awesome model.
