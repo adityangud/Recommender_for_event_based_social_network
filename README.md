@@ -1,6 +1,6 @@
-Project for Information Storage and Retrieval Course 670
-
 ## Recommender for Event Based Social Network(WhatTheRec) ##
+
+Project for Information Storage and Retrieval Course 670
 
 It is of utmost importance in today's world that an event based social network use recommenders to suggest relevant and interesting events to its users which help them choose between various events. Therefore, this is a system for recommending events to users based on their previous activities. It is based on "Context-Aware Event Recommendation in Event-based Social Networks" paper by Augusto Q. Macedo, Leandro B. Marinho and Rodrygo L. T. Santos. We have collected data from Meetup.com for four cities, namely, SanJose, Phoenix, Chicago and College Station. The main problem in working on event recommendation is the cold-start problem. We do not know which events will the user actually attend. This eliminates the use of simple collaborative filtering and latent factor models.
 
@@ -13,6 +13,9 @@ We used meetup data for 3 cities, namely, Chicago, Phoenix, and San Jose.
 
 Data is present at following link:-
 https://drive.google.com/drive/u/1/folders/0B-pIiXWw_X8RTllOSGtYYXFuSmM
+
+## Video ##
+
 
 ## How to run the Project ##
 python index.py --city <city_name> --algo <algo_name> --members <no. of members>
