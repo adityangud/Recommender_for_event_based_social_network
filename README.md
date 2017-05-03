@@ -12,17 +12,48 @@ To evaluate our data, we have divided the dataset into two timelines. The first 
 We used meetup data for 3 cities, namely, Chicago, Phoenix, and San Jose.
 
 Data is present at following link:-
-https://drive.google.com/drive/u/1/folders/0B-pIiXWw_X8RTllOSGtYYXFuSmM
+https://goo.gl/ThgVtY
+
+Each folder corresponds to a city and contains five files.
 
 ## Video ##
 
+https://goo.gl/2CE6Gv
 
-## How to run the Project ##
+## How to run Jupyter Notebook ##
+Open the Jupyter Notebook and run all the code sequentially. 
+Note: Please do not run this code outside the current directory. The code in this notebook calls some python code that are present in the subdirectories. 
+
+## Dependencies to be installed ##
+
+### sklearn 
+``` 
+pip install sklearn 
+```
+### scipy 
+``` 
+pip install scipy
+```
+### numpy
+``` 
+pip install numpy
+```
+### json 
+``` 
+pip install json
+```
+
+### pandas 
+``` 
+pip install pandas
+```
+
+## How to run the Project from console ##
 python index.py --city <city_name> --algo <algo_name> --members <no. of members>
 
 city_name can be "LSAN JOSE", "LPHOENIX" or "LCHICAGO"
 
-This project is python2.7 compatible.
+This project is only python2.7 compatible.
 
 ## Website for Data Visualization ##
 Website for data visualization is made which helped us a lot while writing the recommender.
